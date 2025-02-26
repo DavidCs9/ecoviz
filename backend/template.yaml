@@ -1,0 +1,133 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  ecoviz-serverless
+
+  Sample SAM Template for ecoviz-serverless
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: nodejs22.x
+    Handler: app.lambdaHandler
+    AutoPublishAlias: dev
+    Architectures:
+      - x86_64
+
+    Tracing: Active
+    # You can add LoggingConfig parameters such as the Logformat, Log Group, and SystemLogLevel or ApplicationLogLevel. Learn more here https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html#sam-function-loggingconfig.
+    LoggingConfig:
+      LogFormat: JSON
+
+Resources:
+  ApiGatewayApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: dev
+      TracingEnabled: True
+      Cors: "'*'"
+
+  CalculateFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: calculate/
+      Events:
+        Calculate:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /calculate
+            Method: post
+            RestApiId:
+              Ref: ApiGatewayApi
+      Environment:
+        Variables:
+          OPENAI_API_KEY: #ADD API KEY
+    Metadata: # Manage esbuild properties
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: es2020
+        Sourcemap: true
+        EntryPoints:
+          - app.ts
+
+  MailerFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: mailer/
+      Events:
+        Send:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /send-mail
+            Method: post
+            RestApiId:
+              Ref: ApiGatewayApi
+      Environment:
+        Variables:
+          EMAIL_PASS: #Add Password
+    Metadata: # Manage esbuild properties
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: es2020
+        Sourcemap: true
+        EntryPoints:
+          - app.ts
+
+  ApplicationResourceGroup:
+    Type: AWS::ResourceGroups::Group
+    Properties:
+      Name:
+        Fn::Sub: ApplicationInsights-SAM-${AWS::StackName}
+      ResourceQuery:
+        Type: CLOUDFORMATION_STACK_1_0
+  ApplicationInsightsMonitoring:
+    Type: AWS::ApplicationInsights::Application
+    Properties:
+      ResourceGroupName:
+        Ref: ApplicationResourceGroup
+      AutoConfigurationEnabled: "true"
+  # Outputs:
+
+Outputs:
+  ApiGatewayEndpoint:
+    Description: "API Gateway endpoint URL for the application"
+    Value:
+      Fn::Sub: "https://${ApiGatewayApi}.execute-api.${AWS::Region}.amazonaws.com/dev"
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-ApiGatewayEndpoint"
+
+  CalculateFunctionArn:
+    Description: "ARN of the Calculate Lambda Function"
+    Value:
+      Fn::GetAtt: [CalculateFunction, Arn]
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-CalculateFunctionArn"
+
+  MailerFunctionArn:
+    Description: "ARN of the Mailer Lambda Function"
+    Value:
+      Fn::GetAtt: [MailerFunction, Arn]
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-MailerFunctionArn"
+
+  ApplicationInsightsMonitoringArn:
+    Description: "ARN of the Application Insights Monitoring"
+    Value:
+      Fn::GetAtt: [ApplicationInsightsMonitoring, ApplicationARN]
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-ApplicationInsightsMonitoringArn"
+
+  ApplicationResourceGroupName:
+    Description: "Name of the Application Resource Group"
+    Value:
+      Ref: ApplicationResourceGroup
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-ApplicationResourceGroupName"
