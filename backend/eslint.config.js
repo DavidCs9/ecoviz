@@ -2,7 +2,6 @@ import js from '@eslint/js';
 import typescript from '@typescript-eslint/eslint-plugin';
 import typescriptParser from '@typescript-eslint/parser';
 import prettier from 'eslint-plugin-prettier';
-import prettierConfig from 'eslint-config-prettier';
 
 export default [
   // Base JavaScript recommended rules
@@ -37,6 +36,9 @@ export default [
       ...typescript.configs.recommended.rules,
       ...prettier.configs.recommended.rules,
       'prettier/prettier': 'error',
+      // Enable unused variable detection
+      '@typescript-eslint/no-unused-vars': 'error',
+      'no-unused-vars': 'off', // Turn off base rule as it can report incorrect errors
       // Add any custom rules here
       // '@typescript-eslint/explicit-function-return-type': 'off',
     },
@@ -55,6 +57,7 @@ export default [
     rules: {
       ...prettier.configs.recommended.rules,
       'prettier/prettier': 'error',
+      'no-unused-vars': 'error',
     },
   },
   
