@@ -233,10 +233,10 @@ const createEmailTemplate = (results: CarbonFootprintResults) => {
         <div class="comparison">
           <h3>Comparison with Averages</h3>
           <p>Your carbon footprint is ${globalComparison}% ${
-        parseFloat(globalComparison) > 0 ? 'higher' : 'lower'
-    } than the global average and ${Math.abs(parseFloat(usComparison))}% ${
-        parseFloat(usComparison) > 0 ? 'higher' : 'lower'
-    } than the US average.</p>
+              parseFloat(globalComparison) > 0 ? 'higher' : 'lower'
+          } than the global average and ${Math.abs(parseFloat(usComparison))}% ${
+              parseFloat(usComparison) > 0 ? 'higher' : 'lower'
+          } than the US average.</p>
         </div>
         <div class="next-steps">
           <h3>Next Steps</h3>

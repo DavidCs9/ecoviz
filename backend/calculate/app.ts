@@ -172,15 +172,15 @@ async function getAIAnalysis(carbonFootprint: number, data: CalculationData): Pr
     const prompt = `
       Analyze this user's carbon footprint (${carbonFootprint.toFixed(2)} kg CO2e/year):
       1. Housing (${housingPercentage.toFixed(1)}%): ${data.housing.type}, ${data.housing.size} people, ${
-        data.housing.energy.electricity
-    } kWh electricity, ${data.housing.energy.naturalGas} therms gas
+          data.housing.energy.electricity
+      } kWh electricity, ${data.housing.energy.naturalGas} therms gas
       2. Transportation (${transportPercentage.toFixed(1)}%): ${data.transportation.car.milesDriven} miles driven, ${
-        data.transportation.flights.shortHaul + data.transportation.flights.longHaul
-    } flights/year
+          data.transportation.flights.shortHaul + data.transportation.flights.longHaul
+      } flights/year
       3. Food (${foodPercentage.toFixed(1)}%): ${data.food.dietType} diet, Waste level: ${data.food.wasteLevel}
       4. Consumption: Shopping habits ${data.consumption.shoppingHabits}, Recycling habits ${
-        data.consumption.recyclingHabits
-    }
+          data.consumption.recyclingHabits
+      }
   
       Top contributors: ${contributors[0].name} and ${contributors[1].name}
   
