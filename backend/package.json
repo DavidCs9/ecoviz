@@ -11,7 +11,8 @@
     "format:check": "prettier --check '**/*.{ts,js,json,md}'",
     "test": "jest",
     "build": "tsc",
-    "prepare": "husky"
+    "prepare": "husky",
+    "deploy": "npm run build && dotenv -e .env -- sam deploy --parameter-overrides ParameterKey=OPENAI_API_KEY,ParameterValue=$OPENAI_API_KEY ParameterKey=EMAIL_PASS,ParameterValue=$EMAIL_PASS"
   },
   "dependencies": {
     "esbuild": "^0.25.0",
@@ -27,6 +28,7 @@
     "@types/nodemailer": "^6.4.17",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
+    "dotenv-cli": "^8.0.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.0",
