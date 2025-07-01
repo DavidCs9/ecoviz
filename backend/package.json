@@ -11,9 +11,6 @@
     "format:check": "prettier --check '**/*.{ts,js,json,md}'",
     "test": "jest",
     "build": "tsc",
-    "compile": "tsc",
-    "build:calculate": "tsc --project calculate/tsconfig.json",
-    "build:mailer": "tsc --project mailer/tsconfig.json",
     "prepare": "husky"
   },
   "dependencies": {
