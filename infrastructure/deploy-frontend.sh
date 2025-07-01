@@ -9,7 +9,7 @@ set -e
 STACK_NAME="ecoviz-frontend-infrastructure"
 DOMAIN_NAME="ecoviz.xyz"
 ENVIRONMENT="prod"
-REGION="us-west-1"
+REGION="us-east-1"
 
 # Colors for output
 RED='\033[0;31m'
