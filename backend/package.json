@@ -10,8 +10,6 @@
     "format": "prettier --write '**/*.{ts,js,json,md}'",
     "format:check": "prettier --check '**/*.{ts,js,json,md}'",
     "test": "jest",
-    "test:calculate": "jest calculate/",
-    "test:mailer": "jest mailer/",
     "build": "tsc",
     "compile": "tsc",
     "build:calculate": "tsc --project calculate/tsconfig.json",
