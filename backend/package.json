@@ -4,29 +4,34 @@
   "description": "EcoViz Backend - Centralized package for all Lambda functions",
   "private": true,
   "type": "module",
-  "workspaces": [
-    "calculate",
-    "mailer"
-  ],
   "scripts": {
     "lint": "eslint '**/*.ts' --quiet --fix",
     "lint:check": "eslint '**/*.ts' --quiet",
     "format": "prettier --write '**/*.{ts,js,json,md}'",
     "format:check": "prettier --check '**/*.{ts,js,json,md}'",
-    "test": "npm run test --workspaces",
-    "build": "npm run compile --workspaces",
-    "compile": "npm run compile --workspaces",
-    "install:all": "npm install && npm install --workspaces"
+    "test": "jest",
+    "test:calculate": "jest calculate/",
+    "test:mailer": "jest mailer/",
+    "build": "tsc",
+    "compile": "tsc",
+    "build:calculate": "tsc --project calculate/tsconfig.json",
+    "build:mailer": "tsc --project mailer/tsconfig.json"
+  },
+  "dependencies": {
+    "esbuild": "^0.25.0",
+    "nodemailer": "^6.10.0",
+    "openai": "^4.85.2"
   },
   "devDependencies": {
-    "@eslint/js": "^9.0.0",
+    "@eslint/js": "^8.57.0",
     "@jest/globals": "^29.2.0",
     "@types/aws-lambda": "^8.10.92",
     "@types/jest": "^29.2.0",
     "@types/node": "^20.5.7",
+    "@types/nodemailer": "^6.4.17",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
-    "eslint": "^9.0.0",
+    "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.0",
     "jest": "^29.2.1",

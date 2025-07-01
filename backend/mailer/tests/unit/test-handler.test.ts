@@ -5,20 +5,29 @@ import { expect, describe, it } from '@jest/globals';
 describe('Unit test for app handler', function () {
     it('verifies successful response', async () => {
         const event: APIGatewayProxyEvent = {
-            httpMethod: 'get',
-            body: '',
+            httpMethod: 'POST',
+            body: JSON.stringify({
+                email: 'test@example.com',
+                results: {
+                    carbonFootprint: 5000,
+                    housing: 1500,
+                    transportation: 2000,
+                    food: 1000,
+                    consumption: 500,
+                },
+            }),
             headers: {},
             isBase64Encoded: false,
             multiValueHeaders: {},
             multiValueQueryStringParameters: {},
-            path: '/hello',
+            path: '/mail',
             pathParameters: {},
             queryStringParameters: {},
             requestContext: {
                 accountId: '123456789012',
                 apiId: '1234',
                 authorizer: {},
-                httpMethod: 'get',
+                httpMethod: 'POST',
                 identity: {
                     accessKey: '',
                     accountId: '',
@@ -42,12 +51,12 @@ describe('Unit test for app handler', function () {
                     userAgent: '',
                     userArn: '',
                 },
-                path: '/hello',
+                path: '/mail',
                 protocol: 'HTTP/1.1',
                 requestId: 'c6af9ac6-7b61-11e6-9a41-93e8deadbeef',
                 requestTimeEpoch: 1428582896000,
                 resourceId: '123456',
-                resourcePath: '/hello',
+                resourcePath: '/mail',
                 stage: 'dev',
             },
             resource: '',
@@ -58,7 +67,7 @@ describe('Unit test for app handler', function () {
         expect(result.statusCode).toEqual(200);
         expect(result.body).toEqual(
             JSON.stringify({
-                message: 'hello world',
+                message: 'Mail sent successfully',
             }),
         );
     });
