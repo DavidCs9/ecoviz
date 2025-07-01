@@ -1,0 +1,15 @@
+{
+  "name": "ecoviz-root",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "husky": "^9.0.0"
+  }
+}
