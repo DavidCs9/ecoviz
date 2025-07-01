@@ -5,6 +5,7 @@ This backend uses a centralized package management approach with npm workspaces 
 ## Setup
 
 1. **Install dependencies from the backend root:**
+
    ```bash
    cd backend
    npm install
@@ -65,7 +66,8 @@ npm run test
 ## ESLint Flat Config
 
 This project uses ESLint's new flat config format (`eslint.config.js`) which provides:
+
 - Better performance
 - More flexible configuration
 - Native ES module support
-- Simplified plugin and rule management 
+- Simplified plugin and rule management

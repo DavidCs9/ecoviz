@@ -1,107 +1,107 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import nodemailer from 'nodemailer';
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import nodemailer from 'nodemailer'
 
 const transporter = nodemailer.createTransport({
-    host: 'smtp.zoho.com',
-    port: 587,
-    secure: false, // Use TLS
-    auth: {
-        user: 'noreply@ecoviz.xyz',
-        pass: process.env.EMAIL_PASS,
-    },
-});
+  host: 'smtp.zoho.com',
+  port: 587,
+  secure: false, // Use TLS
+  auth: {
+    user: 'noreply@ecoviz.xyz',
+    pass: process.env.EMAIL_PASS,
+  },
+})
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    try {
-        if (event.httpMethod !== 'POST') {
-            return {
-                statusCode: 405,
-                body: JSON.stringify({
-                    message: 'Method Not Allowed',
-                }),
-            };
-        }
-
-        const { email, results } = JSON.parse(event.body || '{}');
-
-        console.log(email, results);
-
-        if (!email || !results) {
-            return {
-                statusCode: 400,
-                body: JSON.stringify({
-                    message: 'Bad Request',
-                }),
-            };
-        }
-
-        if (
-            !results.carbonFootprint ||
-            !results.housing ||
-            !results.transportation ||
-            !results.food ||
-            !results.consumption
-        ) {
-            return {
-                statusCode: 400,
-                body: JSON.stringify({
-                    message: 'Bad Request',
-                }),
-            };
-        }
-
-        const mailOptions = {
-            from: '"EcoViz" <noreply@ecoviz.xyz>',
-            to: email,
-            subject: 'Your EcoViz Carbon Footprint Results',
-            html: createEmailTemplate(results),
-        };
-
-        await transporter.sendMail(mailOptions);
-
-        return {
-            statusCode: 200,
-            headers: {
-                'Access-Control-Allow-Headers': 'Content-Type',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'OPTIONS,POST,GET',
-            },
-            body: JSON.stringify({
-                message: 'Mail sent successfully',
-            }),
-        };
-    } catch (err) {
-        console.log(err);
-        return {
-            statusCode: 500,
-            body: JSON.stringify({
-                message: 'some error happened',
-            }),
-        };
+  try {
+    if (event.httpMethod !== 'POST') {
+      return {
+        statusCode: 405,
+        body: JSON.stringify({
+          message: 'Method Not Allowed',
+        }),
+      }
     }
-};
+
+    const { email, results } = JSON.parse(event.body || '{}')
+
+    console.log(email, results)
+
+    if (!email || !results) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          message: 'Bad Request',
+        }),
+      }
+    }
+
+    if (
+      !results.carbonFootprint ||
+      !results.housing ||
+      !results.transportation ||
+      !results.food ||
+      !results.consumption
+    ) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          message: 'Bad Request',
+        }),
+      }
+    }
+
+    const mailOptions = {
+      from: '"EcoViz" <noreply@ecoviz.xyz>',
+      to: email,
+      subject: 'Your EcoViz Carbon Footprint Results',
+      html: createEmailTemplate(results),
+    }
+
+    await transporter.sendMail(mailOptions)
+
+    return {
+      statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'OPTIONS,POST,GET',
+      },
+      body: JSON.stringify({
+        message: 'Mail sent successfully',
+      }),
+    }
+  } catch (err) {
+    console.log(err)
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        message: 'some error happened',
+      }),
+    }
+  }
+}
 
 interface CarbonFootprintResults {
-    carbonFootprint: number;
-    housing: number;
-    transportation: number;
-    food: number;
-    consumption: number;
+  carbonFootprint: number
+  housing: number
+  transportation: number
+  food: number
+  consumption: number
 }
 
 const createEmailTemplate = (results: CarbonFootprintResults) => {
-    const totalFootprint = results.carbonFootprint.toFixed(2);
-    const housingEmissions = results.housing.toFixed(1);
-    const transportationEmissions = results.transportation.toFixed(1);
-    const foodEmissions = results.food.toFixed(1);
-    const consumptionEmissions = results.consumption.toFixed(1);
+  const totalFootprint = results.carbonFootprint.toFixed(2)
+  const housingEmissions = results.housing.toFixed(1)
+  const transportationEmissions = results.transportation.toFixed(1)
+  const foodEmissions = results.food.toFixed(1)
+  const consumptionEmissions = results.consumption.toFixed(1)
 
-    const globalAverage = 4000; // kg CO2e
-    const usAverage = 16000; // kg CO2e
-    const globalComparison = (((results.carbonFootprint - globalAverage) / globalAverage) * 100).toFixed(1);
-    const usComparison = (((results.carbonFootprint - usAverage) / usAverage) * 100).toFixed(1);
+  const globalAverage = 4000 // kg CO2e
+  const usAverage = 16000 // kg CO2e
+  const globalComparison = (((results.carbonFootprint - globalAverage) / globalAverage) * 100).toFixed(1)
+  const usComparison = (((results.carbonFootprint - usAverage) / usAverage) * 100).toFixed(1)
 
-    return `<!DOCTYPE html>
+  return `<!DOCTYPE html>
   <html lang="en">
   <head>
     <meta charset="UTF-8">
@@ -233,9 +233,9 @@ const createEmailTemplate = (results: CarbonFootprintResults) => {
         <div class="comparison">
           <h3>Comparison with Averages</h3>
           <p>Your carbon footprint is ${globalComparison}% ${
-              parseFloat(globalComparison) > 0 ? 'higher' : 'lower'
+            parseFloat(globalComparison) > 0 ? 'higher' : 'lower'
           } than the global average and ${Math.abs(parseFloat(usComparison))}% ${
-              parseFloat(usComparison) > 0 ? 'higher' : 'lower'
+            parseFloat(usComparison) > 0 ? 'higher' : 'lower'
           } than the US average.</p>
         </div>
         <div class="next-steps">
@@ -251,5 +251,5 @@ const createEmailTemplate = (results: CarbonFootprintResults) => {
       </footer>
     </div>
   </body>
-  </html>`;
-};
+  </html>`
+}
