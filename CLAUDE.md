@@ -62,9 +62,13 @@ npm run test --workspace=mailer
 cd backend
 npm run deploy   # Uses dotenv for environment variables
 
-# Frontend to Vercel (automated via GitHub Actions)
-npm run build
-# Deployment happens automatically on push to main branch
+# Frontend Infrastructure Setup (one-time)
+cd infrastructure
+./deploy-frontend.sh --domain ecoviz.xyz --environment prod
+
+# Frontend to S3 + CloudFront (automated via GitHub Actions)
+# Deployment happens automatically on push to master branch for frontend changes
+# Manual deployment: cd frontend && npm run build && aws s3 sync dist/ s3://bucket-name
 ```
 
 ## Key Files and Patterns
@@ -84,6 +88,8 @@ npm run build
 ### Configuration Files
 - `backend/samconfig.toml`: AWS SAM deployment configuration (us-west-1 region)
 - `backend/jest.config.js`: Test configuration covering all Lambda functions
+- `infrastructure/frontend-infrastructure.yaml`: CloudFormation template for S3 + CloudFront
+- `.github/workflows/frontend-deploy.yml`: CI/CD pipeline for frontend deployment
 - Both directories use ESLint flat config format (`eslint.config.js`)
 
 ## Environment Requirements
@@ -100,7 +106,14 @@ npm run build
 ### Development Prerequisites
 - Node.js 18+ (backend), 14+ (frontend)
 - AWS SAM CLI for backend deployment
+- AWS CLI for frontend infrastructure deployment
 - Docker for local Lambda testing
+
+### GitHub Secrets for CI/CD
+- `AWS_ACCESS_KEY_ID` & `AWS_SECRET_ACCESS_KEY`: AWS credentials for deployment
+- `S3_BUCKET_NAME`: S3 bucket name for frontend hosting
+- `CLOUDFRONT_DISTRIBUTION_ID`: CloudFront distribution ID for cache invalidation
+- `VITE_API_URL`: Backend API Gateway endpoint URL
 
 ## Code Quality & Testing
 
