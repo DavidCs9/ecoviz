@@ -4,12 +4,12 @@ on:
   push:
     branches: [master]
     paths:
-      - "frontend/**"
-      - ".github/workflows/frontend-deploy.yml"
+      - 'frontend/**'
+      - '.github/workflows/frontend-deploy.yml'
   pull_request:
     branches: [master]
     paths:
-      - "frontend/**"
+      - 'frontend/**'
 
 jobs:
   test:
@@ -22,9 +22,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
-          cache: "npm"
-          cache-dependency-path: "frontend/package-lock.json"
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
 
       - name: Install dependencies
         run: |
@@ -53,9 +53,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
-          cache: "npm"
-          cache-dependency-path: "frontend/package-lock.json"
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
 
       - name: Install dependencies
         run: |
