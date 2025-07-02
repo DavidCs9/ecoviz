@@ -1,1 +1,89 @@
-cd backend && npm run lint && npm run format && npm test
+# Check if there are any staged files
+if ! git diff --cached --quiet; then
+  echo "🔍 Running pre-commit checks..."
+  
+  # Check which workspaces have staged changes
+  backend_changes=$(git diff --cached --name-only | grep -E '^backend/' | wc -l)
+  frontend_changes=$(git diff --cached --name-only | grep -E '^frontend/' | wc -l)
+  
+  # Function to run backend checks
+  run_backend_checks() {
+    echo "🔧 Running backend checks..."
+    cd backend
+    
+    # Run linting (check only, don't fix)
+    echo "  📋 Linting backend..."
+    npm run lint:check || { echo "❌ Backend linting failed"; exit 1; }
+    
+    # Run formatting check
+    echo "  🎨 Checking backend formatting..."
+    npm run format:check || { echo "❌ Backend formatting failed. Run 'npm run format' to fix."; exit 1; }
+    
+    # Run tests
+    echo "  🧪 Running backend tests..."
+    npm test || { echo "❌ Backend tests failed"; exit 1; }
+    
+    # Build TypeScript
+    echo "  🔨 Building backend TypeScript..."
+    npm run build || { echo "❌ Backend build failed"; exit 1; }
+    
+    cd ..
+    echo "✅ Backend checks passed"
+  }
+  
+  # Function to run frontend checks
+  run_frontend_checks() {
+    echo "🎨 Running frontend checks..."
+    cd frontend
+    
+    # Run linting
+    echo "  📋 Linting frontend..."
+    npm run lint || { echo "❌ Frontend linting failed"; exit 1; }
+    
+    # Run tests
+    echo "  🧪 Running frontend tests..."
+    npm test || { echo "❌ Frontend tests failed"; exit 1; }
+    
+    # Build check
+    echo "  🔨 Building frontend..."
+    npm run build || { echo "❌ Frontend build failed"; exit 1; }
+    
+    cd ..
+    echo "✅ Frontend checks passed"
+  }
+  
+  # Run checks based on what has changed
+  if [ "$backend_changes" -gt 0 ] && [ "$frontend_changes" -gt 0 ]; then
+    echo "📦 Changes detected in both backend and frontend"
+    # Run both in parallel using background processes
+    run_backend_checks &
+    backend_pid=$!
+    run_frontend_checks &
+    frontend_pid=$!
+    
+    # Wait for both to complete
+    wait $backend_pid
+    backend_exit=$?
+    wait $frontend_pid
+    frontend_exit=$?
+    
+    if [ $backend_exit -ne 0 ] || [ $frontend_exit -ne 0 ]; then
+      echo "❌ Pre-commit checks failed"
+      exit 1
+    fi
+  elif [ "$backend_changes" -gt 0 ]; then
+    echo "📦 Changes detected in backend only"
+    run_backend_checks
+  elif [ "$frontend_changes" -gt 0 ]; then
+    echo "📦 Changes detected in frontend only"
+    run_frontend_checks
+  else
+    echo "📦 No workspace changes detected, running basic checks..."
+    # Check if there are any other changes that might affect the root
+    echo "✅ No workspace-specific checks needed"
+  fi
+  
+  echo "🎉 All pre-commit checks passed!"
+else
+  echo "ℹ️  No staged changes detected"
+fi
