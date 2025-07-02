@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
   ecoviz-serverless
@@ -9,11 +9,11 @@ Parameters:
   OpenAIAPIKey:
     Type: String
     Description: OpenAI API Key
-    Default: ""
+    Default: ''
   EmailPass:
     Type: String
     Description: Email SMTP Password
-    Default: "placeholder"
+    Default: 'placeholder'
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
@@ -98,46 +98,46 @@ Resources:
     Properties:
       ResourceGroupName:
         Ref: ApplicationResourceGroup
-      AutoConfigurationEnabled: "true"
+      AutoConfigurationEnabled: 'true'
   # Outputs:
 
 Outputs:
   ApiGatewayEndpoint:
-    Description: "API Gateway endpoint URL for the application"
+    Description: 'API Gateway endpoint URL for the application'
     Value:
-      Fn::Sub: "https://${ApiGatewayApi}.execute-api.${AWS::Region}.amazonaws.com/dev"
+      Fn::Sub: 'https://${ApiGatewayApi}.execute-api.${AWS::Region}.amazonaws.com/dev'
     Export:
       Name:
-        Fn::Sub: "${AWS::StackName}-ApiGatewayEndpoint"
+        Fn::Sub: '${AWS::StackName}-ApiGatewayEndpoint'
 
   CalculateFunctionArn:
-    Description: "ARN of the Calculate Lambda Function"
+    Description: 'ARN of the Calculate Lambda Function'
     Value:
       Fn::GetAtt: [CalculateFunction, Arn]
     Export:
       Name:
-        Fn::Sub: "${AWS::StackName}-CalculateFunctionArn"
+        Fn::Sub: '${AWS::StackName}-CalculateFunctionArn'
 
   MailerFunctionArn:
-    Description: "ARN of the Mailer Lambda Function"
+    Description: 'ARN of the Mailer Lambda Function'
     Value:
       Fn::GetAtt: [MailerFunction, Arn]
     Export:
       Name:
-        Fn::Sub: "${AWS::StackName}-MailerFunctionArn"
+        Fn::Sub: '${AWS::StackName}-MailerFunctionArn'
 
   ApplicationInsightsMonitoringArn:
-    Description: "ARN of the Application Insights Monitoring"
+    Description: 'ARN of the Application Insights Monitoring'
     Value:
       Fn::GetAtt: [ApplicationInsightsMonitoring, ApplicationARN]
     Export:
       Name:
-        Fn::Sub: "${AWS::StackName}-ApplicationInsightsMonitoringArn"
+        Fn::Sub: '${AWS::StackName}-ApplicationInsightsMonitoringArn'
 
   ApplicationResourceGroupName:
-    Description: "Name of the Application Resource Group"
+    Description: 'Name of the Application Resource Group'
     Value:
       Ref: ApplicationResourceGroup
     Export:
       Name:
-        Fn::Sub: "${AWS::StackName}-ApplicationResourceGroupName"
+        Fn::Sub: '${AWS::StackName}-ApplicationResourceGroupName'
