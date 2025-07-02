@@ -7,7 +7,7 @@ describe('Unit test for app handler', function () {
     const event: APIGatewayProxyEvent = {
       httpMethod: 'POST',
       body: JSON.stringify({
-        userId: 'test-user-123',
+        userId: '123e4567-e89b-12d3-a456-426614174000',
         data: {
           housing: {
             type: 'apartment',

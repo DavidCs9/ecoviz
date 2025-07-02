@@ -1,5 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import OpenAI from 'openai'
+import { CalculateRequestSchema } from '../../shared/validation'
 import { CalculationData, ConsumptionData, FoodData, HousingData, TransportationData } from './types'
 
 // Configure OpenAI
@@ -17,36 +18,24 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
         }),
       }
     }
-    const { userId, data } = JSON.parse(event.body || '{}')
-    if (!userId || !data) {
+    const requestBody = JSON.parse(event.body || '{}')
+
+    // Validate request using Zod schema
+    const validationResult = CalculateRequestSchema.safeParse(requestBody)
+    if (!validationResult.success) {
       return {
         statusCode: 400,
         body: JSON.stringify({
-          message: 'Missing required fields',
+          message: 'Invalid request format',
+          errors: validationResult.error.issues.map(issue => ({
+            path: issue.path.join('.'),
+            message: issue.message,
+          })),
         }),
       }
     }
 
-    if (
-      typeof userId !== 'string' ||
-      typeof data !== 'object' ||
-      !data.housing ||
-      !data.transportation ||
-      !data.food ||
-      !data.consumption ||
-      typeof data.housing !== 'object' ||
-      typeof data.transportation !== 'object' ||
-      typeof data.food !== 'object' ||
-      typeof data.consumption !== 'object'
-    ) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
-          message:
-            'Invalid request format. Expected { userId: string, data: { housing: {}, transportation: {}, food: {}, consumption: {} } }',
-        }),
-      }
-    }
+    const { userId, data } = validationResult.data
 
     const carbonFootprint = calculateTotalCarbonFootprint(data)
     const aiAnalysis = await getAIAnalysis(carbonFootprint, data)

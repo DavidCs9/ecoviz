@@ -1,4 +1,4 @@
-[] Create backend CI/CD pipeline
+[x] Create backend CI/CD pipeline
 [] Remake form to a more simpler one
 [] Add langchain to the backend
 [] Add zod validation for frontend and backend

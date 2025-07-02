@@ -37,7 +37,7 @@ const EmailResultsButton: React.FC<{ results: CarbonFootprintResults }> = ({
         description: "Check your inbox for your carbon footprint results.",
         variant: "success",
       });
-    } catch (error) {
+    } catch {
       setError("Failed to send email. Please try again.");
     } finally {
       setIsSending(false);

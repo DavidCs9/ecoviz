@@ -22,6 +22,7 @@ import { Button } from "../components/ui/button";
 import { useToast } from "../hooks/use-toast";
 import { Progress } from "../components/ui/progress";
 import { v4 as uuidv4 } from "uuid";
+import { CalculateRequestSchema } from "../../../shared/validation";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const steps = ["Housing", "Transportation", "Food", "Consumption"];
@@ -63,13 +64,13 @@ export function Calculator() {
     recyclingHabits: "",
   });
 
-  const handleInputChange = (e: any) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
     // Track when user inputs data
   };
 
-  const handleSelectChange = (name: any) => (value: any) => {
+  const handleSelectChange = (name: string) => (value: string) => {
     setFormData((prevData) => ({ ...prevData, [name]: value }));
     // Track when user selects an option
   };
@@ -138,47 +139,63 @@ export function Calculator() {
 
     try {
       const userId = localStorage.getItem("ecoviz_user_id");
+
+      // Create the request payload
+      const requestPayload = {
+        userId: userId,
+        data: {
+          housing: {
+            type: formData.housingType,
+            size: parseInt(formData.householdSize),
+            energy: {
+              electricity: parseFloat(formData.electricity),
+              naturalGas: parseFloat(formData.naturalGas),
+              heatingOil: parseFloat(formData.heatingOil),
+            },
+          },
+          transportation: {
+            car: {
+              milesDriven: parseFloat(formData.milesDriven),
+              fuelEfficiency: parseFloat(formData.fuelEfficiency),
+            },
+            publicTransit: {
+              busMiles: parseFloat(formData.busMiles),
+              trainMiles: parseFloat(formData.trainMiles),
+            },
+            flights: {
+              shortHaul: parseInt(formData.shortHaulFlights),
+              longHaul: parseInt(formData.longHaulFlights),
+            },
+          },
+          food: {
+            dietType: formData.dietType,
+            wasteLevel: formData.foodWaste,
+          },
+          consumption: {
+            shoppingHabits: formData.shoppingHabits,
+            recyclingHabits: formData.recyclingHabits,
+          },
+        },
+      };
+
+      // Validate the request payload using Zod schema
+      const validationResult = CalculateRequestSchema.safeParse(requestPayload);
+      if (!validationResult.success) {
+        console.error("Validation errors:", validationResult.error.issues);
+        toast({
+          title: "Form Validation Error",
+          description: "Please check your inputs and try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const response = await fetch(`${API_URL}/calculate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          userId: userId, // In a real app, this should be dynamically generated or retrieved from user authentication
-          data: {
-            housing: {
-              type: formData.housingType,
-              size: parseInt(formData.householdSize),
-              energy: {
-                electricity: parseFloat(formData.electricity),
-                naturalGas: parseFloat(formData.naturalGas),
-                heatingOil: parseFloat(formData.heatingOil),
-              },
-            },
-            transportation: {
-              car: {
-                milesDriven: parseFloat(formData.milesDriven),
-                fuelEfficiency: parseFloat(formData.fuelEfficiency),
-              },
-              publicTransit: {
-                busMiles: parseFloat(formData.busMiles),
-                trainMiles: parseFloat(formData.trainMiles),
-              },
-              flights: {
-                shortHaul: parseInt(formData.shortHaulFlights),
-                longHaul: parseInt(formData.longHaulFlights),
-              },
-            },
-            food: {
-              dietType: formData.dietType,
-              wasteLevel: formData.foodWaste,
-            },
-            consumption: {
-              shoppingHabits: formData.shoppingHabits,
-              recyclingHabits: formData.recyclingHabits,
-            },
-          },
-        }),
+        body: JSON.stringify(requestPayload),
       });
 
       if (!response.ok) {
