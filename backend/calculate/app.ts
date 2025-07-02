@@ -1,11 +1,16 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import OpenAI from 'openai'
+import { ChatOpenAI } from '@langchain/openai'
+import { ChatPromptTemplate } from '@langchain/core/prompts'
+import { StringOutputParser } from '@langchain/core/output_parsers'
 import { CalculateRequestSchema } from './validation'
 import { CalculationData, ConsumptionData, FoodData, HousingData, TransportationData } from './types'
 
-// Configure OpenAI
-const openai = new OpenAI({
+// Configure Langchain OpenAI
+const llm = new ChatOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
+  modelName: 'gpt-3.5-turbo-0125',
+  temperature: 0.7,
+  maxTokens: 500,
 })
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -172,45 +177,56 @@ async function getAIAnalysis(carbonFootprint: number, data: CalculationData): Pr
     .sort((a, b) => b.value - a.value)
     .slice(0, 2)
 
-  const prompt = `
-      Analyze this user's carbon footprint (${carbonFootprint.toFixed(2)} kg CO2e/year):
-      1. Housing (${housingPercentage.toFixed(1)}%): ${data.housing.type}, ${data.housing.size} people, ${
-        data.housing.energy.electricity
-      } kWh electricity, ${data.housing.energy.naturalGas} therms gas
-      2. Transportation (${transportPercentage.toFixed(1)}%): ${data.transportation.car.milesDriven} miles driven, ${
-        data.transportation.flights.shortHaul + data.transportation.flights.longHaul
-      } flights/year
-      3. Food (${foodPercentage.toFixed(1)}%): ${data.food.dietType} diet, Waste level: ${data.food.wasteLevel}
-      4. Consumption: Shopping habits ${data.consumption.shoppingHabits}, Recycling habits ${
-        data.consumption.recyclingHabits
-      }
-  
-      Top contributors: ${contributors[0].name} and ${contributors[1].name}
-  
+  // Define the prompt template
+  const promptTemplate = ChatPromptTemplate.fromMessages([
+    [
+      'system',
+      "You are a precise environmental sustainability expert. Provide concise, personalized, and actionable recommendations based on the user's specific data. Include potential impact calculations and realistic goals.",
+    ],
+    [
+      'user',
+      `Analyze this user's carbon footprint ({carbonFootprint} kg CO2e/year):
+      1. Housing ({housingPercentage}%): {housingType}, {housingSize} people, {electricity} kWh electricity, {naturalGas} therms gas
+      2. Transportation ({transportPercentage}%): {milesDriven} miles driven, {totalFlights} flights/year
+      3. Food ({foodPercentage}%): {dietType} diet, Waste level: {wasteLevel}
+      4. Consumption: Shopping habits {shoppingHabits}, Recycling habits {recyclingHabits}
+      
+      Top contributors: {topContributor1} and {topContributor2}
+      
       Provide 3 specific, actionable recommendations to reduce this carbon footprint, focusing on the top contributors. For each recommendation:
       1. Reference specific user data
       2. Estimate the potential CO2e reduction (in kg/year) if implemented
       3. Suggest a realistic goal (e.g., "Reduce car miles by 20%")
-  
-      Format as a numbered list with each recommendation containing: a) Advice, b) Data reference, c) Potential impact, d) Goal.
-    `
+      
+      Format as a numbered list with each recommendation containing: a) Advice, b) Data reference, c) Potential impact, d) Goal.`,
+    ],
+  ])
+
+  // Create the chain
+  const outputParser = new StringOutputParser()
+  const chain = promptTemplate.pipe(llm).pipe(outputParser)
 
   try {
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo-0125', // 2x faster than GPT-4
-      messages: [
-        {
-          role: 'system',
-          content:
-            "You are a precise environmental sustainability expert. Provide concise, personalized, and actionable recommendations based on the user's specific data. Include potential impact calculations and realistic goals.",
-        },
-        { role: 'user', content: prompt },
-      ],
-      temperature: 0.7,
-      max_tokens: 500, // Limit response length
+    const result = await chain.invoke({
+      carbonFootprint: carbonFootprint.toFixed(2),
+      housingPercentage: housingPercentage.toFixed(1),
+      transportPercentage: transportPercentage.toFixed(1),
+      foodPercentage: foodPercentage.toFixed(1),
+      housingType: data.housing.type,
+      housingSize: data.housing.size,
+      electricity: data.housing.energy.electricity,
+      naturalGas: data.housing.energy.naturalGas,
+      milesDriven: data.transportation.car.milesDriven,
+      totalFlights: data.transportation.flights.shortHaul + data.transportation.flights.longHaul,
+      dietType: data.food.dietType,
+      wasteLevel: data.food.wasteLevel,
+      shoppingHabits: data.consumption.shoppingHabits,
+      recyclingHabits: data.consumption.recyclingHabits,
+      topContributor1: contributors[0].name,
+      topContributor2: contributors[1].name,
     })
 
-    return completion.choices[0].message.content || 'No recommendations available.'
+    return result || 'No recommendations available.'
   } catch (error) {
     console.error('Error getting AI analysis:', error)
     return 'Unable to generate recommendations at this time.'
