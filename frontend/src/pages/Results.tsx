@@ -15,7 +15,6 @@ import {
   Bar,
 } from "recharts";
 import { Leaf, Car, Zap, Coffee, ShoppingBag } from "lucide-react";
-import ReactMarkdown from "react-markdown";
 import { useNavigate } from "react-router-dom";
 import { PersistedData } from "../hooks/useDataPersistence";
 import EmailResultsButton, {
@@ -286,69 +285,118 @@ const Results: React.FC = () => {
           </div>
         </div>
 
+        {/* AI Analysis Summary */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4 text-green-700">
+            AI Analysis Summary
+          </h2>
+          <div className="bg-green-50 p-6 rounded-lg border border-green-200">
+            <div className="grid md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <h3 className="text-lg font-semibold mb-3 text-green-800">
+                  Comparison to Averages
+                </h3>
+                <div className="space-y-2">
+                  <p className="text-green-900">
+                    <span className="font-medium">Global Average:</span>{" "}
+                    <span className="font-bold text-green-700">
+                      {(aiAnalysis.summary.comparisonToAverages.global * 100).toFixed(1)}%
+                    </span>
+                  </p>
+                  <p className="text-green-900">
+                    <span className="font-medium">US Average:</span>{" "}
+                    <span className="font-bold text-green-700">
+                      {(aiAnalysis.summary.comparisonToAverages.us * 100).toFixed(1)}%
+                    </span>
+                  </p>
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-semibold mb-3 text-green-800">
+                  Top Contributors
+                </h3>
+                <div className="space-y-2">
+                  {aiAnalysis.summary.topContributors.slice(0, 3).map((contributor) => (
+                    <div key={contributor.category} className="flex justify-between">
+                      <span className="text-green-900 capitalize">{contributor.category}:</span>
+                      <span className="font-medium text-green-700">
+                        {contributor.percentage.toFixed(1)}%
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* AI Recommendations */}
         <div className="mb-8">
           <h2 className="text-2xl font-semibold mb-4 text-green-700">
             AI Recommendations
           </h2>
-          <ReactMarkdown
-            components={{
-              h1: ({ node, ...props }) => (
-                <h3
-                  className="text-xl font-semibold mb-2 text-green-800"
-                  {...props}
-                />
-              ),
-              h2: ({ node, ...props }) => (
-                <h4
-                  className="text-lg font-semibold mb-2 text-green-700"
-                  {...props}
-                />
-              ),
-              p: ({ node, ...props }) => (
-                <p className="mb-4 text-green-900" {...props} />
-              ),
-              ul: ({ node, ...props }) => (
-                <ul
-                  className="list-disc list-inside mb-4 text-green-900"
-                  {...props}
-                />
-              ),
-              ol: ({ node, ...props }) => (
-                <ol
-                  className="list-decimal list-inside mb-4 text-green-900"
-                  {...props}
-                />
-              ),
-              li: ({ node, ...props }) => <li className="mb-2" {...props} />,
-              strong: ({ node, ...props }) => (
-                <strong className="font-semibold text-green-800" {...props} />
-              ),
-              em: ({ node, ...props }) => (
-                <em className="italic text-green-700" {...props} />
-              ),
-              blockquote: ({ node, ...props }) => (
-                <blockquote
-                  className="border-l-4 border-green-500 pl-4 italic my-4 text-green-800"
-                  {...props}
-                />
-              ),
-            }}
-          >
-            {aiAnalysis}
-          </ReactMarkdown>
+          <div className="space-y-6">
+            {aiAnalysis.recommendations.map((recommendation, index) => (
+              <div
+                key={index}
+                className={`p-6 rounded-lg border-l-4 ${
+                  recommendation.priority === 'high'
+                    ? 'border-red-500 bg-red-50'
+                    : recommendation.priority === 'medium'
+                    ? 'border-yellow-500 bg-yellow-50'
+                    : 'border-green-500 bg-green-50'
+                }`}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <h3 className="text-xl font-semibold text-gray-800">
+                    {recommendation.title}
+                  </h3>
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      recommendation.priority === 'high'
+                        ? 'bg-red-100 text-red-800'
+                        : recommendation.priority === 'medium'
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : 'bg-green-100 text-green-800'
+                    }`}
+                  >
+                    {recommendation.priority.toUpperCase()} PRIORITY
+                  </span>
+                </div>
+                
+                <p className="text-gray-700 mb-4">{recommendation.description}</p>
+                
+                <div className="grid md:grid-cols-2 gap-4 mb-4">
+                  <div className="bg-white p-4 rounded-lg">
+                    <h4 className="font-semibold text-gray-800 mb-2">Data Reference</h4>
+                    <p className="text-gray-600 text-sm">{recommendation.dataReference}</p>
+                  </div>
+                  
+                  <div className="bg-white p-4 rounded-lg">
+                    <h4 className="font-semibold text-gray-800 mb-2">Goal</h4>
+                    <p className="text-gray-600 text-sm">{recommendation.goal}</p>
+                  </div>
+                </div>
+                
+                <div className="bg-white p-4 rounded-lg">
+                  <h4 className="font-semibold text-gray-800 mb-2">Potential Impact</h4>
+                  <p className="text-lg font-bold text-green-600">
+                    -{recommendation.potentialImpact.co2Reduction} {recommendation.potentialImpact.unit}
+                  </p>
+                  <p className="text-gray-600 text-sm">
+                    Category: <span className="capitalize">{recommendation.category}</span>
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         <EmailResultsButton results={emailData} />
 
         <div className="text-center text-sm text-gray-600 mt-8 bg-gray-100/80 p-2 rounded-lg">
-          <p>
-            These recommendations are generated by <strong>AI</strong> and
-            should be considered as general advice.
-          </p>
-          <p>
-            Always consult with environmental experts for personalized
-            strategies.
-          </p>
+          <p>{aiAnalysis.disclaimer}</p>
         </div>
       </div>
     </div>

@@ -1,9 +1,17 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { ChatOpenAI } from '@langchain/openai'
 import { ChatPromptTemplate } from '@langchain/core/prompts'
-import { StringOutputParser } from '@langchain/core/output_parsers'
+import { StructuredOutputParser } from 'langchain/output_parsers'
+import { z } from 'zod'
 import { CalculateRequestSchema } from './validation'
-import { CalculationData, ConsumptionData, FoodData, HousingData, TransportationData } from './types'
+import {
+  CalculationData,
+  ConsumptionData,
+  FoodData,
+  HousingData,
+  TransportationData,
+  AIAnalysisResponse,
+} from './types'
 
 // Configure Langchain OpenAI
 const llm = new ChatOpenAI({
@@ -155,65 +163,152 @@ function calculateConsumptionEmissions(data: ConsumptionData): number {
   )
 }
 
-async function getAIAnalysis(carbonFootprint: number, data: CalculationData): Promise<string> {
-  // Calculate percentage contributions (simplified)
-  const totalEmissions = carbonFootprint
-  const housingEmissions = data.housing.energy.electricity * 0.4 + data.housing.energy.naturalGas * 5.3
-  const transportEmissions =
-    data.transportation.car.milesDriven * 0.404 +
-    (data.transportation.flights.shortHaul + data.transportation.flights.longHaul) * 1000
-  const foodEmissions = data.food.dietType === 'meat-heavy' ? 3000 : data.food.dietType === 'vegetarian' ? 1400 : 2000
+// Define the Zod schema for structured output
+const aiAnalysisSchema = z.object({
+  summary: z.object({
+    totalEmissions: z.number(),
+    comparisonToAverages: z.object({
+      global: z.number(),
+      us: z.number(),
+    }),
+    topContributors: z.array(
+      z.object({
+        category: z.string(),
+        percentage: z.number(),
+        emissions: z.number(),
+      }),
+    ),
+  }),
+  recommendations: z.array(
+    z.object({
+      title: z.string(),
+      description: z.string(),
+      dataReference: z.string(),
+      potentialImpact: z.object({
+        co2Reduction: z.number(),
+        unit: z.literal('kg/year'),
+      }),
+      goal: z.string(),
+      priority: z.enum(['high', 'medium', 'low']),
+      category: z.enum(['housing', 'transportation', 'food', 'consumption']),
+    }),
+  ),
+  disclaimer: z.string(),
+})
 
-  const housingPercentage = (housingEmissions / totalEmissions) * 100
-  const transportPercentage = (transportEmissions / totalEmissions) * 100
-  const foodPercentage = (foodEmissions / totalEmissions) * 100
+async function getAIAnalysis(carbonFootprint: number, data: CalculationData): Promise<AIAnalysisResponse> {
+  // Calculate percentage contributions and emissions by category
+  const housingEmissions = calculateHousingEmissions(data.housing)
+  const transportEmissions = calculateTransportationEmissions(data.transportation)
+  const foodEmissions = calculateFoodEmissions(data.food)
+  const consumptionEmissions = calculateConsumptionEmissions(data.consumption)
 
-  // Identify top two contributors
+  const housingPercentage = (housingEmissions / carbonFootprint) * 100
+  const transportPercentage = (transportEmissions / carbonFootprint) * 100
+  const foodPercentage = (foodEmissions / carbonFootprint) * 100
+  const consumptionPercentage = (consumptionEmissions / carbonFootprint) * 100
+
+  // Identify top contributors
   const contributors = [
-    { name: 'Housing', value: housingPercentage },
-    { name: 'Transportation', value: transportPercentage },
-    { name: 'Food', value: foodPercentage },
-  ]
-    .sort((a, b) => b.value - a.value)
-    .slice(0, 2)
+    { category: 'housing', percentage: housingPercentage, emissions: housingEmissions },
+    { category: 'transportation', percentage: transportPercentage, emissions: transportEmissions },
+    { category: 'food', percentage: foodPercentage, emissions: foodEmissions },
+    { category: 'consumption', percentage: consumptionPercentage, emissions: consumptionEmissions },
+  ].sort((a, b) => b.percentage - a.percentage)
+
+  // Create fallback response for when AI is not available
+  const createFallbackResponse = (): AIAnalysisResponse => ({
+    summary: {
+      totalEmissions: carbonFootprint,
+      comparisonToAverages: {
+        global: carbonFootprint / 4000,
+        us: carbonFootprint / 16000,
+      },
+      topContributors: contributors.slice(0, 3),
+    },
+    recommendations: [
+      {
+        title: `Reduce ${contributors[0].category.charAt(0).toUpperCase() + contributors[0].category.slice(1)} Emissions`,
+        description: `Your largest contributor is ${contributors[0].category} at ${contributors[0].percentage.toFixed(1)}% of your total emissions.`,
+        dataReference: `Based on your ${contributors[0].category} data`,
+        potentialImpact: {
+          co2Reduction: Math.round(contributors[0].emissions * 0.2),
+          unit: 'kg/year' as const,
+        },
+        goal: `Reduce ${contributors[0].category} emissions by 20%`,
+        priority: 'high' as const,
+        category: contributors[0].category as 'housing' | 'transportation' | 'food' | 'consumption',
+      },
+      {
+        title: `Optimize ${contributors[1].category.charAt(0).toUpperCase() + contributors[1].category.slice(1)}`,
+        description: `Your second largest contributor is ${contributors[1].category} at ${contributors[1].percentage.toFixed(1)}% of emissions.`,
+        dataReference: `Based on your ${contributors[1].category} data`,
+        potentialImpact: {
+          co2Reduction: Math.round(contributors[1].emissions * 0.15),
+          unit: 'kg/year' as const,
+        },
+        goal: `Reduce ${contributors[1].category} emissions by 15%`,
+        priority: 'medium' as const,
+        category: contributors[1].category as 'housing' | 'transportation' | 'food' | 'consumption',
+      },
+    ],
+    disclaimer:
+      'These recommendations are generated based on your emission profile and should be considered as general advice. Consult environmental experts for personalized strategies.',
+  })
+
+  // If no OpenAI API key is provided or in test environment, return fallback
+  if (!process.env.OPENAI_API_KEY || process.env.NODE_ENV === 'test') {
+    return createFallbackResponse()
+  }
+
+  // Set up structured output parser
+  const parser = StructuredOutputParser.fromZodSchema(aiAnalysisSchema)
 
   // Define the prompt template
   const promptTemplate = ChatPromptTemplate.fromMessages([
     [
       'system',
-      "You are a precise environmental sustainability expert. Provide concise, personalized, and actionable recommendations based on the user's specific data. Include potential impact calculations and realistic goals.",
+      `You are a precise environmental sustainability expert. Analyze carbon footprint data and provide structured recommendations.
+      
+      ${parser.getFormatInstructions()}`,
     ],
     [
       'user',
       `Analyze this user's carbon footprint ({carbonFootprint} kg CO2e/year):
-      1. Housing ({housingPercentage}%): {housingType}, {housingSize} people, {electricity} kWh electricity, {naturalGas} therms gas
-      2. Transportation ({transportPercentage}%): {milesDriven} miles driven, {totalFlights} flights/year
-      3. Food ({foodPercentage}%): {dietType} diet, Waste level: {wasteLevel}
-      4. Consumption: Shopping habits {shoppingHabits}, Recycling habits {recyclingHabits}
+
+      Emissions by category:
+      - Housing: {housingEmissions} kg CO2e/year ({housingPercentage}%) - {housingType}, {electricity} kWh electricity, {naturalGas} therms gas
+      - Transportation: {transportEmissions} kg CO2e/year ({transportPercentage}%) - {milesDriven} miles driven, {totalFlights} flights/year
+      - Food: {foodEmissions} kg CO2e/year ({foodPercentage}%) - {dietType} diet, {wasteLevel} waste level
+      - Consumption: {consumptionEmissions} kg CO2e/year ({consumptionPercentage}%) - {shoppingHabits} shopping, {recyclingHabits} recycling
       
-      Top contributors: {topContributor1} and {topContributor2}
+      Global average: 4000 kg CO2e/year
+      US average: 16000 kg CO2e/year
       
-      Provide 3 specific, actionable recommendations to reduce this carbon footprint, focusing on the top contributors. For each recommendation:
-      1. Reference specific user data
-      2. Estimate the potential CO2e reduction (in kg/year) if implemented
-      3. Suggest a realistic goal (e.g., "Reduce car miles by 20%")
-      
-      Format as a numbered list with each recommendation containing: a) Advice, b) Data reference, c) Potential impact, d) Goal.`,
+      Provide a structured analysis with:
+      1. Summary with emissions comparison and top 3 contributors
+      2. 3 specific, actionable recommendations focusing on the highest impact categories
+      3. Include potential CO2 reduction estimates and realistic goals for each recommendation
+      4. Set appropriate priority levels (high/medium/low) based on impact potential
+      5. Include a standard disclaimer about AI-generated advice`,
     ],
   ])
 
   // Create the chain
-  const outputParser = new StringOutputParser()
-  const chain = promptTemplate.pipe(llm).pipe(outputParser)
+  const chain = promptTemplate.pipe(llm).pipe(parser)
 
   try {
     const result = await chain.invoke({
-      carbonFootprint: carbonFootprint.toFixed(2),
+      carbonFootprint: carbonFootprint.toFixed(0),
+      housingEmissions: housingEmissions.toFixed(0),
+      transportEmissions: transportEmissions.toFixed(0),
+      foodEmissions: foodEmissions.toFixed(0),
+      consumptionEmissions: consumptionEmissions.toFixed(0),
       housingPercentage: housingPercentage.toFixed(1),
       transportPercentage: transportPercentage.toFixed(1),
       foodPercentage: foodPercentage.toFixed(1),
+      consumptionPercentage: consumptionPercentage.toFixed(1),
       housingType: data.housing.type,
-      housingSize: data.housing.size,
       electricity: data.housing.energy.electricity,
       naturalGas: data.housing.energy.naturalGas,
       milesDriven: data.transportation.car.milesDriven,
@@ -222,14 +317,13 @@ async function getAIAnalysis(carbonFootprint: number, data: CalculationData): Pr
       wasteLevel: data.food.wasteLevel,
       shoppingHabits: data.consumption.shoppingHabits,
       recyclingHabits: data.consumption.recyclingHabits,
-      topContributor1: contributors[0].name,
-      topContributor2: contributors[1].name,
     })
 
-    return result || 'No recommendations available.'
+    return result
   } catch (error) {
     console.error('Error getting AI analysis:', error)
-    return 'Unable to generate recommendations at this time.'
+    // Return fallback structured response on AI failure
+    return createFallbackResponse()
   }
 }
 

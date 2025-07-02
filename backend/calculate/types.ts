@@ -40,4 +40,42 @@ interface CalculationData {
   consumption: ConsumptionData
 }
 
-export { HousingData, TransportationData, FoodData, ConsumptionData, CalculationData }
+interface AIRecommendation {
+  title: string
+  description: string
+  dataReference: string
+  potentialImpact: {
+    co2Reduction: number
+    unit: 'kg/year'
+  }
+  goal: string
+  priority: 'high' | 'medium' | 'low'
+  category: 'housing' | 'transportation' | 'food' | 'consumption'
+}
+
+interface AIAnalysisResponse {
+  summary: {
+    totalEmissions: number
+    comparisonToAverages: {
+      global: number
+      us: number
+    }
+    topContributors: Array<{
+      category: string
+      percentage: number
+      emissions: number
+    }>
+  }
+  recommendations: AIRecommendation[]
+  disclaimer: string
+}
+
+export {
+  HousingData,
+  TransportationData,
+  FoodData,
+  ConsumptionData,
+  CalculationData,
+  AIRecommendation,
+  AIAnalysisResponse,
+}

@@ -1,8 +1,13 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { lambdaHandler } from '../../app'
-import { expect, describe, it } from '@jest/globals'
+import { expect, describe, it, beforeAll } from '@jest/globals'
 
 describe('Unit test for app handler', function () {
+  // Set test environment to use fallback response
+  beforeAll(() => {
+    process.env.NODE_ENV = 'test'
+  })
+
   it('verifies successful response', async () => {
     const event: APIGatewayProxyEvent = {
       httpMethod: 'POST',
@@ -91,8 +96,18 @@ describe('Unit test for app handler', function () {
     const result: APIGatewayProxyResult = await lambdaHandler(event)
 
     expect(result.statusCode).toEqual(200)
-    expect(JSON.parse(result.body)).toHaveProperty('carbonFootprint')
-    expect(JSON.parse(result.body)).toHaveProperty('aiAnalysis')
-    expect(JSON.parse(result.body)).toHaveProperty('calculationId')
+    const responseBody = JSON.parse(result.body)
+    expect(responseBody).toHaveProperty('carbonFootprint')
+    expect(responseBody).toHaveProperty('aiAnalysis')
+    expect(responseBody).toHaveProperty('calculationId')
+
+    // Verify the structured AI analysis format
+    expect(responseBody.aiAnalysis).toHaveProperty('summary')
+    expect(responseBody.aiAnalysis).toHaveProperty('recommendations')
+    expect(responseBody.aiAnalysis).toHaveProperty('disclaimer')
+    expect(responseBody.aiAnalysis.summary).toHaveProperty('totalEmissions')
+    expect(responseBody.aiAnalysis.summary).toHaveProperty('comparisonToAverages')
+    expect(responseBody.aiAnalysis.summary).toHaveProperty('topContributors')
+    expect(Array.isArray(responseBody.aiAnalysis.recommendations)).toBe(true)
   })
 })

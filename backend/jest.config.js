@@ -1,7 +1,7 @@
 export default {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  roots: ['<rootDir>/calculate', '<rootDir>/mailer'],
+  roots: ['<rootDir>/calculate'],
   testMatch: [
     '**/__tests__/**/*.ts',
     '**/?(*.)+(spec|test).ts'
@@ -11,7 +11,6 @@ export default {
   },
   collectCoverageFrom: [
     'calculate/**/*.ts',
-    'mailer/**/*.ts',
     '!**/*.test.ts',
     '!**/*.spec.ts',
     '!**/node_modules/**'
