@@ -11,12 +11,12 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "./dist",
-    "rootDir": "./",
+    "rootDir": "../",
     "baseUrl": "./",
     "paths": {
       "@/*": ["./*"]
     }
   },
-  "include": ["calculate/**/*.ts", "mailer/**/*.ts", "**/*.ts"],
+  "include": ["calculate/**/*.ts", "mailer/**/*.ts", "../shared/**/*.ts"],
   "exclude": ["node_modules", "**/*.test.ts", "**/*.spec.ts", "dist"]
 }
