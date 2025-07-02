@@ -2,82 +2,82 @@ name: Frontend CI/CD
 
 on:
   push:
-    branches: [ master ]
-    paths: 
-      - 'frontend/**'
-      - '.github/workflows/frontend-deploy.yml'
-  pull_request:
-    branches: [ master ]
+    branches: [master]
     paths:
-      - 'frontend/**'
+      - "frontend/**"
+      - ".github/workflows/frontend-deploy.yml"
+  pull_request:
+    branches: [master]
+    paths:
+      - "frontend/**"
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: 'frontend/package-lock.json'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+          cache-dependency-path: "frontend/package-lock.json"
 
-    - name: Install dependencies
-      run: |
-        cd frontend
-        npm ci
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm ci
 
-    - name: Run tests
-      run: |
-        cd frontend
-        npm test
+      - name: Run tests
+        run: |
+          cd frontend
+          npm test
 
-    - name: Run linting
-      run: |
-        cd frontend
-        npm run lint
+      - name: Run linting
+        run: |
+          cd frontend
+          npm run lint
 
   build-and-deploy:
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: 'frontend/package-lock.json'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+          cache-dependency-path: "frontend/package-lock.json"
 
-    - name: Install dependencies
-      run: |
-        cd frontend
-        npm ci
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm ci
 
-    - name: Build application
-      run: |
-        cd frontend
-        npm run build
-      env:
-        VITE_API_URL: ${{ secrets.VITE_API_URL }}
-        VITE_POSTHOG_API_KEY: ${{ secrets.VITE_POSTHOG_API_KEY }}
-        VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
+      - name: Build application
+        run: |
+          cd frontend
+          npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_POSTHOG_API_KEY: ${{ secrets.VITE_POSTHOG_API_KEY }}
+          VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
 
-    - name: Install Vercel CLI
-      run: npm install -g vercel@latest
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
 
-    - name: Deploy to Vercel
-      run: vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
-      working-directory: ./frontend
-      env:
-        VITE_API_URL: ${{ secrets.VITE_API_URL }}
-        VITE_POSTHOG_API_KEY: ${{ secrets.VITE_POSTHOG_API_KEY }}
-        VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
+      - name: Deploy to Vercel
+        run: vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
+        working-directory: ./frontend
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_POSTHOG_API_KEY: ${{ secrets.VITE_POSTHOG_API_KEY }}
+          VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
