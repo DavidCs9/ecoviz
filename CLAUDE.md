@@ -54,12 +54,18 @@ npm run test
 ```
 
 ### Deployment
+
+#### Backend (Automated via GitHub Actions)
 ```bash
-# Backend to AWS
+# Automated deployment on push to master branch
+# Triggers when backend/, shared/, or workflow files change
+# Manual deployment (if needed):
 cd backend
 npm run deploy   # Uses dotenv for environment variables
+```
 
-# Frontend to Vercel (automated via Vercel Git integration)
+#### Frontend (Automated via Vercel Git integration)
+```bash
 # Deployment happens automatically on push to master branch for frontend changes
 # Manual deployment: cd frontend && vercel --prod
 ```
@@ -81,6 +87,7 @@ npm run deploy   # Uses dotenv for environment variables
 - `backend/samconfig.toml`: AWS SAM deployment configuration (us-west-1 region)
 - `backend/jest.config.js`: Test configuration covering all Lambda functions
 - `vercel.json`: Vercel deployment configuration for frontend
+- `.github/workflows/backend-deploy.yml`: CI/CD pipeline for backend deployment
 - Both directories use ESLint flat config format (`eslint.config.js`)
 
 ## Environment Requirements
@@ -103,6 +110,11 @@ npm run deploy   # Uses dotenv for environment variables
 - `VITE_API_URL`: Backend API Gateway endpoint URL
 - `VITE_POSTHOG_API_KEY`: Analytics (optional)
 - `VITE_SENTRY_DSN`: Error monitoring (optional)
+
+### GitHub Secrets for Backend CI/CD
+- `AWS_ACCESS_KEY_ID`: AWS access key for deployment
+- `AWS_SECRET_ACCESS_KEY`: AWS secret key for deployment
+- `OPENAI_API_KEY`: OpenAI API key for Lambda function
 
 ## Code Quality & Testing
 
