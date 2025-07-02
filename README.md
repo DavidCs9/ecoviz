@@ -57,4 +57,14 @@ npm run dev
 - Configure `.env` with: `VITE_API_URL`, `VITE_POSTHOG_API_KEY`, `VITE_SENTRY_DSN`
 - See [frontend/README.md](frontend/README.md) for full details
 
+### Frontend Deployment (Vercel)
+
+The frontend is deployed using Vercel. To deploy:
+
+1.  **Install Vercel CLI:** `npm install -g vercel`
+2.  **Link Project:** Run `vercel` in the `frontend/` directory and link it to your Vercel account and a new or existing project.
+3.  **Deploy:** `vercel --prod` (for production deployment) or `vercel` (for preview deployments).
+
+For continuous deployment with GitHub Actions, ensure you have configured the `VERCEL_TOKEN` as a GitHub secret in your repository settings.
+
 ---
