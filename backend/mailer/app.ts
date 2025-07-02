@@ -16,6 +16,11 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
     if (event.httpMethod !== 'POST') {
       return {
         statusCode: 405,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Content-Type',
+          'Access-Control-Allow-Methods': 'OPTIONS,POST,GET',
+        },
         body: JSON.stringify({
           message: 'Method Not Allowed',
         }),
@@ -29,6 +34,11 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
     if (!email || !results) {
       return {
         statusCode: 400,
+        headers: {
+          'Access-Control-Allow-Headers': 'Content-Type',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'OPTIONS,POST,GET',
+        },
         body: JSON.stringify({
           message: 'Bad Request',
         }),
@@ -74,6 +84,11 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
     console.log(err)
     return {
       statusCode: 500,
+      headers: {
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'OPTIONS,POST,GET',
+      },
       body: JSON.stringify({
         message: 'some error happened',
       }),
