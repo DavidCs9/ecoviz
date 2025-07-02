@@ -7,11 +7,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 EcoViz is a monorepo carbon footprint platform with distinct frontend and backend architectures:
 
 ### Backend Architecture
-- **AWS Serverless**: Two Lambda functions deployed via SAM CLI
+- **AWS Serverless**: Single Lambda function deployed via SAM CLI
   - `CalculateFunction` (`/calculate`): Carbon footprint calculation with OpenAI integration
-  - `MailerFunction` (`/send-mail`): Email reporting using Nodemailer with Zoho SMTP
-- **Shared API Gateway**: Single endpoint with CORS enabled, routes to both functions
-- **TypeScript**: All Lambda functions written in TypeScript, compiled with esbuild
+- **API Gateway**: Single endpoint with CORS enabled
+- **TypeScript**: Lambda function written in TypeScript, compiled with esbuild
 - **Centralized package management**: npm workspaces from backend root directory
 
 ### Frontend Architecture  
@@ -24,7 +23,6 @@ EcoViz is a monorepo carbon footprint platform with distinct frontend and backen
 ### Key Integration Points
 - Frontend calls backend `/calculate` endpoint with structured carbon footprint data
 - Results stored in localStorage and displayed via charts (Recharts)  
-- Optional email reporting via `/send-mail` endpoint
 - AI analysis provides personalized recommendations based on user's top emission categories
 
 ## Essential Commands
@@ -50,10 +48,9 @@ npm run dev      # Start Vite dev server
 npm test
 npm run build    # TypeScript compile + Vite build
 
-# Test specific functions
+# Test backend functions
 cd backend
-npm run test --workspace=calculate
-npm run test --workspace=mailer
+npm run test
 ```
 
 ### Deployment
@@ -62,13 +59,9 @@ npm run test --workspace=mailer
 cd backend
 npm run deploy   # Uses dotenv for environment variables
 
-# Frontend Infrastructure Setup (one-time)
-cd infrastructure
-./deploy-frontend.sh --domain ecoviz.xyz --environment prod
-
-# Frontend to S3 + CloudFront (automated via GitHub Actions)
+# Frontend to Vercel (automated via Vercel Git integration)
 # Deployment happens automatically on push to master branch for frontend changes
-# Manual deployment: cd frontend && npm run build && aws s3 sync dist/ s3://bucket-name
+# Manual deployment: cd frontend && vercel --prod
 ```
 
 ## Key Files and Patterns
@@ -76,8 +69,7 @@ cd infrastructure
 ### Backend Lambda Structure
 - `backend/template.yaml`: SAM template defining infrastructure and API routes
 - `backend/calculate/app.ts`: Main calculation logic with emission factor calculations  
-- `backend/mailer/app.ts`: Email service with HTML template generation
-- `backend/*/types.ts`: TypeScript interfaces for request/response data structures
+- `backend/calculate/types.ts`: TypeScript interfaces for request/response data structures
 
 ### Frontend Component Patterns
 - `src/components/ui/`: Reusable Radix UI components with Tailwind styling
@@ -88,15 +80,13 @@ cd infrastructure
 ### Configuration Files
 - `backend/samconfig.toml`: AWS SAM deployment configuration (us-west-1 region)
 - `backend/jest.config.js`: Test configuration covering all Lambda functions
-- `infrastructure/frontend-infrastructure.yaml`: CloudFormation template for S3 + CloudFront
-- `.github/workflows/frontend-deploy.yml`: CI/CD pipeline for frontend deployment
+- `vercel.json`: Vercel deployment configuration for frontend
 - Both directories use ESLint flat config format (`eslint.config.js`)
 
 ## Environment Requirements
 
 ### Backend Environment Variables  
 - `OPENAI_API_KEY`: Required for AI recommendation generation
-- `EMAIL_PASS`: Zoho SMTP password for email functionality
 
 ### Frontend Environment Variables
 - `VITE_API_URL`: Backend API Gateway endpoint URL
@@ -106,14 +96,13 @@ cd infrastructure
 ### Development Prerequisites
 - Node.js 18+ (backend), 14+ (frontend)
 - AWS SAM CLI for backend deployment
-- AWS CLI for frontend infrastructure deployment
+- Vercel CLI for manual frontend deployment
 - Docker for local Lambda testing
 
-### GitHub Secrets for CI/CD
-- `AWS_ACCESS_KEY_ID` & `AWS_SECRET_ACCESS_KEY`: AWS credentials for deployment
-- `S3_BUCKET_NAME`: S3 bucket name for frontend hosting
-- `CLOUDFRONT_DISTRIBUTION_ID`: CloudFront distribution ID for cache invalidation
+### Environment Variables for Vercel
 - `VITE_API_URL`: Backend API Gateway endpoint URL
+- `VITE_POSTHOG_API_KEY`: Analytics (optional)
+- `VITE_SENTRY_DSN`: Error monitoring (optional)
 
 ## Code Quality & Testing
 

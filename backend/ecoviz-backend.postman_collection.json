@@ -26,28 +26,6 @@
         }
       },
       "response": []
-    },
-    {
-      "name": "Send Mail",
-      "request": {
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\"recipient\":\"test@example.com\",\"results\":{\"housing\":{\"type\":\"apartment\",\"size\":1000,\"energy\":{\"electricity\":500,\"naturalGas\":200,\"heatingOil\":100}},\"transportation\":{\"car\":{\"milesDriven\":10000,\"fuelEfficiency\":30},\"publicTransit\":{\"busMiles\":500,\"trainMiles\":200},\"flights\":{\"shortHaul\":2,\"longHaul\":1}},\"food\":{\"dietType\":\"vegan\",\"wasteLevel\":\"low\"},\"consumption\":{\"shoppingHabits\":\"minimalist\",\"recyclingHabits\":\"always\"}}}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "{{ApiGatewayEndpoint}}/send-mail",
-          "host": ["{{ApiGatewayEndpoint}}"],
-          "path": ["send-mail"]
-        }
-      },
-      "response": []
     }
   ],
   "variable": [

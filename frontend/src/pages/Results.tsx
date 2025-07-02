@@ -17,9 +17,6 @@ import {
 import { Leaf, Car, Zap, Coffee, ShoppingBag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { PersistedData } from "../hooks/useDataPersistence";
-import EmailResultsButton, {
-  CarbonFootprintResults,
-} from "../components/EmailButton";
 
 const RADIAN = Math.PI / 180;
 
@@ -187,13 +184,6 @@ const Results: React.FC = () => {
     { name: "US Average", value: averages.us, fill: "#FFC107" },
   ];
 
-  const emailData: CarbonFootprintResults = {
-    carbonFootprint,
-    housing: sectorEmissions.housing,
-    transportation: sectorEmissions.transportation,
-    food: sectorEmissions.foodEmissions,
-    consumption: sectorEmissions.consumptionEmissions,
-  };
 
   return (
     <div className="min-h-screen w-full p-6">
@@ -393,7 +383,6 @@ const Results: React.FC = () => {
           </div>
         </div>
 
-        <EmailResultsButton results={emailData} />
 
         <div className="text-center text-sm text-gray-600 mt-8 bg-gray-100/80 p-2 rounded-lg">
           <p>{aiAnalysis.disclaimer}</p>
