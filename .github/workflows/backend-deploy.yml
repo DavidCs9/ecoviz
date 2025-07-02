@@ -87,9 +87,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
-      
+          aws-region: us-west-1
 
       - name: SAM Deploy
         run: |
@@ -102,4 +100,4 @@ jobs:
       - name: Output API Gateway URL
         run: |
           cd backend
-          sam list stack-outputs --stack-name ecoviz-serverless --region us-east-1
+          sam list stack-outputs --stack-name ecoviz-serverless --region us-west-1
