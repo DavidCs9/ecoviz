@@ -94,7 +94,7 @@ jobs:
       - name: SAM Deploy
         run: |
           cd backend
-          sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --parameter-overrides "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" "EMAIL_PASS=${{ secrets.EMAIL_PASS }}"
+          sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --parameter-overrides ParameterKey=OpenAIAPIKey,ParameterValue=${{ secrets.OPENAI_API_KEY }} ParameterKey=EmailPass,ParameterValue=${{ secrets.EMAIL_PASS }}
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
