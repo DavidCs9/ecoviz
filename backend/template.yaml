@@ -5,6 +5,16 @@ Description: >
 
   Sample SAM Template for ecoviz-serverless
 
+Parameters:
+  OpenAIAPIKey:
+    Type: String
+    Description: OpenAI API Key
+    Default: ""
+  EmailPass:
+    Type: String
+    Description: Email SMTP Password
+    Default: "placeholder"
+
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
@@ -42,7 +52,7 @@ Resources:
               Ref: ApiGatewayApi
       Environment:
         Variables:
-          OPENAI_API_KEY: #ADD API KEY
+          OPENAI_API_KEY: !Ref OpenAIAPIKey
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
       BuildProperties:
@@ -66,7 +76,7 @@ Resources:
               Ref: ApiGatewayApi
       Environment:
         Variables:
-          EMAIL_PASS: #Add Password
+          EMAIL_PASS: !Ref EmailPass
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
       BuildProperties:

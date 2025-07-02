@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import OpenAI from 'openai'
-import { CalculateRequestSchema } from '../../shared/validation'
+import { CalculateRequestSchema } from './validation'
 import { CalculationData, ConsumptionData, FoodData, HousingData, TransportationData } from './types'
 
 // Configure OpenAI

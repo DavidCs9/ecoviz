@@ -11,7 +11,7 @@
     "format:check": "prettier --check '**/*.{ts,js,json,md}'",
     "test": "jest",
     "build": "npm run lint && npm run format && tsc",
-    "deploy": "npm run build && dotenv -e .env -- sam deploy --parameter-overrides ParameterKey=OPENAI_API_KEY,ParameterValue=$OPENAI_API_KEY ParameterKey=EMAIL_PASS,ParameterValue=$EMAIL_PASS"
+    "deploy": "npm run build && dotenv -e .env -- sam deploy --parameter-overrides ParameterKey=OpenAIAPIKey,ParameterValue=$OPENAI_API_KEY ParameterKey=EmailPass,ParameterValue=$EMAIL_PASS"
   },
   "dependencies": {
     "esbuild": "^0.25.0",
