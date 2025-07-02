@@ -112,6 +112,9 @@ jobs:
         cd backend
         npm run build
 
+    - name: Install esbuild globally for SAM
+      run: npm install -g esbuild
+
     - name: SAM build
       run: |
         cd backend
