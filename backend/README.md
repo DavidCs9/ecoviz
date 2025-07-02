@@ -253,4 +253,3 @@ If you prefer to use an integrated development environment (IDE) to build and te
 - [AWS SAM Developer Guide](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html)
 - [AWS Serverless Application Repository](https://aws.amazon.com/serverless/serverlessrepo/)
 - [OpenAI API Documentation](https://platform.openai.com/docs)
-- [Nodemailer Documentation](https://nodemailer.com/)
