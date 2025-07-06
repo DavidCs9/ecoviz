@@ -426,7 +426,7 @@ async function getEnergyPricesByZipCode(zipCode: string): Promise<{ electricityR
   // For now, return default rates
   // These could be enhanced with a ZIP code to rate mapping
   return {
-    electricityRate: 0.12, // $/kWh
+    electricityRate: 0.16, // $/kWh
     gasRate: 1.2, // $/therm
   }
 }
@@ -494,7 +494,7 @@ async function transformUserInputToCalculationData(userInput: UserInput): Promis
   // Calculate energy consumption from bills
   const calculateElectricityFromBill = async (monthlyBill: number): Promise<number> => {
     // Default average electricity rate ($/kWh) - from EIA data
-    const defaultElectricityRate = 0.12
+    const defaultElectricityRate = 0.16
     try {
       // For now, use default rates. In production, integrate with:
       // - EIA API: https://api.eia.gov/v2/electricity/retail-sales/
@@ -592,6 +592,8 @@ async function transformUserInputToCalculationData(userInput: UserInput): Promis
   const electricityKWh = housing.monthlyElectricityBill
     ? await calculateElectricityFromBill(housing.monthlyElectricityBill)
     : 0
+
+  console.log('electricityKWh', electricityKWh)
 
   const naturalGasTerms =
     housing.usesNaturalGas && housing.monthlyNaturalGasBill
