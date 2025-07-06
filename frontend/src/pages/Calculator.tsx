@@ -10,7 +10,6 @@ import { Button } from '../components/ui/button'
 import { useToast } from '../hooks/use-toast'
 import { Progress } from '../components/ui/progress'
 import { v4 as uuidv4 } from 'uuid'
-import { CalculateRequestSchema } from '../../../shared/validation'
 
 const API_URL = import.meta.env.VITE_API_URL
 console.log(API_URL)
@@ -257,24 +256,48 @@ export function Calculator() {
     try {
       const userId = localStorage.getItem('ecoviz_user_id')
 
-      // For now, create the legacy format for backward compatibility
-      // TODO: In the future, we can send userInputPayload to the backend for processing
-      const legacyData = transformUserInputToBackendFormat()
-      const requestPayload = {
-        userId: userId,
-        data: legacyData,
+      // Create user-friendly input payload
+      const userInputPayload = {
+        location: { zipCode: formData.zipCode },
+        housing: {
+          monthlyElectricityBill: parseFloat(formData.monthlyElectricityBill) || 0,
+          usesNaturalGas: formData.usesNaturalGas,
+          monthlyNaturalGasBill: parseFloat(formData.monthlyNaturalGasBill) || 0,
+          usesHeatingOil: formData.usesHeatingOil,
+          heatingOilFillsPerYear: parseFloat(formData.heatingOilFillsPerYear) || 0,
+          heatingOilTankSizeGallons: parseFloat(formData.heatingOilTankSizeGallons) || 0,
+        },
+        transportation: {
+          car: {
+            make: formData.carMake,
+            model: formData.carModel,
+            year: parseInt(formData.carYear) || 2020,
+            commuteMilesOneWay: parseFloat(formData.commuteMilesOneWay) || 0,
+            commuteDaysPerWeek: parseFloat(formData.commuteDaysPerWeek) || 0,
+            weeklyErrandsMilesRange: formData.weeklyErrandsMilesRange || '25-50',
+          },
+          publicTransit: {
+            weeklyBusMiles: parseFloat(formData.weeklyBusMiles) || 0,
+            weeklyTrainMiles: parseFloat(formData.weeklyTrainMiles) || 0,
+          },
+          flights: {
+            under3Hours: parseInt(formData.flightsUnder3Hours) || 0,
+            between3And6Hours: parseInt(formData.flights3To6Hours) || 0,
+            over6Hours: parseInt(formData.flightsOver6Hours) || 0,
+          },
+        },
+        food: {
+          dietDescription: formData.dietDescription,
+        },
+        consumption: {
+          shoppingFrequencyDescription: formData.shoppingFrequencyDescription,
+          recycledMaterials: formData.recycledMaterials,
+        },
       }
 
-      // Validate the request payload using Zod schema
-      const validationResult = CalculateRequestSchema.safeParse(requestPayload)
-      if (!validationResult.success) {
-        console.error('Validation errors:', validationResult.error.issues)
-        toast({
-          title: 'Form Validation Error',
-          description: 'Please check your inputs and try again.',
-          variant: 'destructive',
-        })
-        return
+      const requestPayload = {
+        userId: userId,
+        userInput: userInputPayload,
       }
 
       const response = await fetch(`${API_URL}/calculate`, {
@@ -293,7 +316,7 @@ export function Calculator() {
 
       const resultsData = {
         carbonFootprint: result.carbonFootprint,
-        calculationData: legacyData,
+        calculationData: transformUserInputToBackendFormat(), // For display purposes
         aiAnalysis: result.aiAnalysis,
         averages: result.averages,
       }

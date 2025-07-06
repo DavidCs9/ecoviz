@@ -13,37 +13,38 @@ describe('Unit test for app handler', function () {
       httpMethod: 'POST',
       body: JSON.stringify({
         userId: '123e4567-e89b-12d3-a456-426614174000',
-        data: {
+        userInput: {
           housing: {
-            type: 'apartment',
-            size: 2,
-            energy: {
-              electricity: 5000,
-              naturalGas: 200,
-              heatingOil: 0,
-            },
+            monthlyElectricityBill: 120,
+            usesNaturalGas: true,
+            monthlyNaturalGasBill: 50,
+            usesHeatingOil: false,
           },
           transportation: {
             car: {
-              milesDriven: 10000,
-              fuelEfficiency: 25,
+              make: 'Toyota',
+              model: 'Camry',
+              year: 2020,
+              commuteMilesOneWay: 15,
+              commuteDaysPerWeek: 5,
+              weeklyErrandsMilesRange: '25-50',
             },
             publicTransit: {
-              busMiles: 500,
-              trainMiles: 200,
+              weeklyBusMiles: 10,
+              weeklyTrainMiles: 5,
             },
             flights: {
-              shortHaul: 2,
-              longHaul: 1,
+              under3Hours: 2,
+              between3And6Hours: 1,
+              over6Hours: 0,
             },
           },
           food: {
-            dietType: 'average',
-            wasteLevel: 'average',
+            dietDescription: 'Meat a few times a week',
           },
           consumption: {
-            shoppingHabits: 'average',
-            recyclingHabits: 'some',
+            shoppingFrequencyDescription: 'I buy new things every now and then.',
+            recycledMaterials: ['Paper', 'Plastic'],
           },
         },
       }),

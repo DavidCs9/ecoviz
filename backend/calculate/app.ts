@@ -3,7 +3,6 @@ import { ChatOpenAI } from '@langchain/openai'
 import { ChatPromptTemplate } from '@langchain/core/prompts'
 import { StructuredOutputParser } from 'langchain/output_parsers'
 import { z } from 'zod'
-import { CalculateRequestSchema } from './validation'
 import {
   CalculationData,
   ConsumptionData,
@@ -44,40 +43,24 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
     }
     const requestBody = JSON.parse(event.body || '{}')
 
-    let data: CalculationData
-    let userId: string
-
-    // Check if request contains userInput (new format) or data (legacy format)
-    if (requestBody.userInput) {
-      console.log('Processing new user-friendly input format')
-      userId = requestBody.userId
-      data = await transformUserInputToCalculationData(requestBody.userInput)
-    } else {
-      console.log('Processing legacy data format')
-      // Validate request using Zod schema for legacy format
-      const validationResult = CalculateRequestSchema.safeParse(requestBody)
-      if (!validationResult.success) {
-        console.log('Validation failed', validationResult.error.issues)
-        return {
-          statusCode: 400,
-          headers: {
-            'Access-Control-Allow-Headers': 'Content-Type',
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'OPTIONS,POST,GET',
-          },
-          body: JSON.stringify({
-            message: 'Invalid request format',
-            errors: validationResult.error.issues.map(issue => ({
-              path: issue.path.join('.'),
-              message: issue.message,
-            })),
-          }),
-        }
+    // Process user-friendly input format
+    if (!requestBody.userInput) {
+      return {
+        statusCode: 400,
+        headers: {
+          'Access-Control-Allow-Headers': 'Content-Type',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'OPTIONS,POST,GET',
+        },
+        body: JSON.stringify({
+          message: 'Invalid request format - userInput is required',
+        }),
       }
-
-      userId = validationResult.data.userId
-      data = validationResult.data.data
     }
+
+    console.log('Processing user-friendly input format')
+    const userId = requestBody.userId
+    const data = await transformUserInputToCalculationData(requestBody.userInput)
 
     console.log('Starting carbon footprint calculation', { userId })
     const carbonFootprint = calculateTotalCarbonFootprint(data)
