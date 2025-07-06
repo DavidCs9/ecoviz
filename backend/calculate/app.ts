@@ -305,6 +305,12 @@ async function getAIAnalysis(carbonFootprint: number, data: CalculationData): Pr
       4. Set appropriate priority levels (high/medium/low) based on impact potential
       5. Include a standard disclaimer about AI-generated advice
 
+      IMPORTANT: Use exact lowercase values for category fields:
+      - "housing" (not "Housing")
+      - "transportation" (not "Transportation") 
+      - "food" (not "Food")
+      - "consumption" (not "Consumption")
+
       Respond with ONLY the JSON object, no markdown formatting.`,
     ],
   ])
@@ -343,6 +349,13 @@ async function getAIAnalysis(carbonFootprint: number, data: CalculationData): Pr
       .replace(/^```json\s*\n?/, '')
       .replace(/\n?\s*```\s*$/, '')
       .trim()
+
+    // Normalize category values to lowercase to match schema
+    cleanedContent = cleanedContent
+      .replace(/"category":\s*"Transportation"/g, '"category": "transportation"')
+      .replace(/"category":\s*"Housing"/g, '"category": "housing"')
+      .replace(/"category":\s*"Food"/g, '"category": "food"')
+      .replace(/"category":\s*"Consumption"/g, '"category": "consumption"')
 
     // Parse the cleaned JSON
     const result = parser.parse(cleanedContent)
