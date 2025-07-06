@@ -44,29 +44,40 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
     }
     const requestBody = JSON.parse(event.body || '{}')
 
-    // Validate request using Zod schema
-    console.log('Validating request body')
-    const validationResult = CalculateRequestSchema.safeParse(requestBody)
-    if (!validationResult.success) {
-      console.log('Validation failed', validationResult.error.issues)
-      return {
-        statusCode: 400,
-        headers: {
-          'Access-Control-Allow-Headers': 'Content-Type',
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'OPTIONS,POST,GET',
-        },
-        body: JSON.stringify({
-          message: 'Invalid request format',
-          errors: validationResult.error.issues.map(issue => ({
-            path: issue.path.join('.'),
-            message: issue.message,
-          })),
-        }),
-      }
-    }
+    let data: CalculationData
+    let userId: string
 
-    const { userId, data } = validationResult.data
+    // Check if request contains userInput (new format) or data (legacy format)
+    if (requestBody.userInput) {
+      console.log('Processing new user-friendly input format')
+      userId = requestBody.userId
+      data = await transformUserInputToCalculationData(requestBody.userInput)
+    } else {
+      console.log('Processing legacy data format')
+      // Validate request using Zod schema for legacy format
+      const validationResult = CalculateRequestSchema.safeParse(requestBody)
+      if (!validationResult.success) {
+        console.log('Validation failed', validationResult.error.issues)
+        return {
+          statusCode: 400,
+          headers: {
+            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'OPTIONS,POST,GET',
+          },
+          body: JSON.stringify({
+            message: 'Invalid request format',
+            errors: validationResult.error.issues.map(issue => ({
+              path: issue.path.join('.'),
+              message: issue.message,
+            })),
+          }),
+        }
+      }
+
+      userId = validationResult.data.userId
+      data = validationResult.data.data
+    }
 
     console.log('Starting carbon footprint calculation', { userId })
     const carbonFootprint = calculateTotalCarbonFootprint(data)
@@ -364,6 +375,285 @@ async function getAIAnalysis(carbonFootprint: number, data: CalculationData): Pr
     console.error('Error getting AI analysis:', error)
     // Return fallback structured response on AI failure
     return createFallbackResponse()
+  }
+}
+
+interface UserInput {
+  location?: { zipCode?: string }
+  housing?: {
+    monthlyElectricityBill?: number
+    usesNaturalGas?: boolean
+    monthlyNaturalGasBill?: number
+    usesHeatingOil?: boolean
+    heatingOilFillsPerYear?: number
+    heatingOilTankSizeGallons?: number
+  }
+  transportation?: {
+    car?: {
+      make?: string
+      model?: string
+      year?: number
+      commuteMilesOneWay?: number
+      commuteDaysPerWeek?: number
+      weeklyErrandsMilesRange?: string
+    }
+    publicTransit?: {
+      weeklyBusMiles?: number
+      weeklyTrainMiles?: number
+    }
+    flights?: {
+      under3Hours?: number
+      between3And6Hours?: number
+      over6Hours?: number
+    }
+  }
+  food?: {
+    dietDescription?: string
+  }
+  consumption?: {
+    shoppingFrequencyDescription?: string
+    recycledMaterials?: string[]
+  }
+}
+
+// Helper function for future external API integrations
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+async function getEnergyPricesByZipCode(zipCode: string): Promise<{ electricityRate: number; gasRate: number }> {
+  // Placeholder for actual API integration
+  // Future integrations:
+  // 1. EIA API for regional energy prices
+  // 2. Utility company APIs
+  // 3. Energy marketplace APIs
+  console.log(`Getting energy prices for ZIP code: ${zipCode}`)
+
+  // For now, return default rates
+  // These could be enhanced with a ZIP code to rate mapping
+  return {
+    electricityRate: 0.12, // $/kWh
+    gasRate: 1.2, // $/therm
+  }
+}
+
+async function transformUserInputToCalculationData(userInput: UserInput): Promise<CalculationData> {
+  console.log('Transforming user input to calculation data')
+
+  // Helper functions for mapping user inputs
+  const mapDietDescription = (description: string): string => {
+    switch (description) {
+      case 'Meat in most meals':
+        return 'meat-heavy'
+      case 'Meat a few times a week':
+        return 'average'
+      case 'Vegetarian (no meat)':
+        return 'vegetarian'
+      case 'Vegan (no animal products)':
+        return 'vegan'
+      default:
+        return 'average'
+    }
+  }
+
+  const mapShoppingFrequency = (description: string): string => {
+    switch (description) {
+      case 'I buy new things frequently.':
+        return 'frequent'
+      case 'I buy new things every now and then.':
+        return 'average'
+      case 'I rarely buy new things and prefer second-hand.':
+        return 'minimal'
+      default:
+        return 'average'
+    }
+  }
+
+  const mapRecyclingHabits = (materials: string[]): string => {
+    if (materials.includes('None of these')) {
+      return 'none'
+    }
+    if (materials.length >= 3) {
+      return 'all'
+    }
+    if (materials.length >= 1) {
+      return 'some'
+    }
+    return 'none'
+  }
+
+  const mapErrandsMiles = (range: string): number => {
+    switch (range) {
+      case '0-25':
+        return 12.5
+      case '25-50':
+        return 37.5
+      case '50-100':
+        return 75
+      case '100+':
+        return 125
+      default:
+        return 37.5
+    }
+  }
+
+  // Calculate energy consumption from bills
+  const calculateElectricityFromBill = async (monthlyBill: number): Promise<number> => {
+    // Default average electricity rate ($/kWh) - from EIA data
+    const defaultElectricityRate = 0.12
+    try {
+      // For now, use default rates. In production, integrate with:
+      // - EIA API: https://api.eia.gov/v2/electricity/retail-sales/
+      // - Utility company APIs
+      // - Commercial energy price services
+      console.log('Using default electricity rate for calculation')
+      const electricityRate = defaultElectricityRate
+      return (monthlyBill / electricityRate) * 12
+    } catch (error) {
+      console.error('Error calculating electricity usage:', error)
+      return (monthlyBill / defaultElectricityRate) * 12
+    }
+  }
+
+  const calculateNaturalGasFromBill = async (monthlyBill: number): Promise<number> => {
+    // Default average natural gas rate ($/therm) - from EIA data
+    const defaultGasRate = 1.2
+    try {
+      // For now, use default rates. In production, integrate with:
+      // - EIA API: https://api.eia.gov/v2/natural-gas/pri/sum/
+      // - Local utility APIs
+      // - Energy data providers
+      console.log('Using default natural gas rate for calculation')
+      const gasRate = defaultGasRate
+      return (monthlyBill / gasRate) * 12
+    } catch (error) {
+      console.error('Error calculating natural gas usage:', error)
+      return (monthlyBill / defaultGasRate) * 12
+    }
+  }
+
+  const getCarFuelEfficiency = async (make: string, model: string, year: number): Promise<number> => {
+    // Default MPG for fallback
+    const defaultMPG = 25
+    try {
+      console.log(`Getting fuel efficiency for ${year} ${make} ${model}`)
+
+      // For now, use enhanced defaults based on common vehicle data
+      // In production, integrate with EPA Fuel Economy API:
+      // https://www.fueleconomy.gov/feg/ws/index.shtml
+
+      // Enhanced defaults based on common make/model patterns
+      const makeUpper = make.toUpperCase()
+      const modelUpper = model.toUpperCase()
+
+      // Hybrid/Electric vehicles
+      if (modelUpper.includes('PRIUS') || modelUpper.includes('HYBRID')) {
+        return year >= 2020 ? 52 : year >= 2010 ? 45 : 40
+      }
+
+      // Electric vehicles (use equivalent MPG)
+      if (modelUpper.includes('TESLA') || modelUpper.includes('ELECTRIC') || modelUpper.includes('EV')) {
+        return 100 // Equivalent MPG for electric
+      }
+
+      // Luxury/Large vehicles
+      if (
+        ['BMW', 'MERCEDES', 'AUDI', 'LEXUS'].includes(makeUpper) ||
+        modelUpper.includes('SUV') ||
+        modelUpper.includes('TRUCK')
+      ) {
+        return year >= 2020 ? 22 : year >= 2010 ? 18 : 15
+      }
+
+      // Compact/Economy vehicles
+      if (
+        ['HONDA', 'TOYOTA', 'NISSAN', 'HYUNDAI'].includes(makeUpper) &&
+        (modelUpper.includes('CIVIC') ||
+          modelUpper.includes('COROLLA') ||
+          modelUpper.includes('SENTRA') ||
+          modelUpper.includes('ELANTRA'))
+      ) {
+        return year >= 2020 ? 32 : year >= 2010 ? 28 : 25
+      }
+
+      // General year-based improvements
+      if (year >= 2020) return 28
+      if (year >= 2015) return 26
+      if (year >= 2010) return 24
+      return 20
+    } catch (error) {
+      console.error('Error calculating fuel efficiency:', error)
+      return defaultMPG
+    }
+  }
+
+  // Calculate values from user inputs
+  const housing = userInput.housing || {}
+  const transportation = userInput.transportation || {}
+  const food = userInput.food || {}
+  const consumption = userInput.consumption || {}
+  // const location = userInput.location || {} // TODO: Use for energy price API calls
+
+  // Calculate energy consumption
+  const electricityKWh = housing.monthlyElectricityBill
+    ? await calculateElectricityFromBill(housing.monthlyElectricityBill)
+    : 0
+
+  const naturalGasThems =
+    housing.usesNaturalGas && housing.monthlyNaturalGasBill
+      ? await calculateNaturalGasFromBill(housing.monthlyNaturalGasBill)
+      : 0
+
+  const heatingOilGallons = housing.usesHeatingOil
+    ? (housing.heatingOilFillsPerYear || 0) * (housing.heatingOilTankSizeGallons || 0)
+    : 0
+
+  // Calculate transportation
+  const car = transportation.car || {}
+  const commuteMiles = (car.commuteMilesOneWay || 0) * 2 * (car.commuteDaysPerWeek || 0) * 52
+  const errandsMiles = mapErrandsMiles(car.weeklyErrandsMilesRange || '25-50') * 52
+  const totalMilesDriven = commuteMiles + errandsMiles
+
+  const fuelEfficiency =
+    car.make && car.model && car.year ? await getCarFuelEfficiency(car.make, car.model, car.year) : 25
+
+  const publicTransit = transportation.publicTransit || {}
+  const annualBusMiles = (publicTransit.weeklyBusMiles || 0) * 52
+  const annualTrainMiles = (publicTransit.weeklyTrainMiles || 0) * 52
+
+  const flights = transportation.flights || {}
+  const shortHaulFlights = flights.under3Hours || 0
+  const longHaulFlights = (flights.between3And6Hours || 0) + (flights.over6Hours || 0)
+
+  return {
+    housing: {
+      type: 'apartment', // Default - could be inferred or asked
+      size: 1000, // Default - could be inferred from household size
+      energy: {
+        electricity: electricityKWh,
+        naturalGas: naturalGasThems,
+        heatingOil: heatingOilGallons,
+      },
+    },
+    transportation: {
+      car: {
+        milesDriven: totalMilesDriven,
+        fuelEfficiency: fuelEfficiency,
+      },
+      publicTransit: {
+        busMiles: annualBusMiles,
+        trainMiles: annualTrainMiles,
+      },
+      flights: {
+        shortHaul: shortHaulFlights,
+        longHaul: longHaulFlights,
+      },
+    },
+    food: {
+      dietType: mapDietDescription(food.dietDescription || ''),
+      wasteLevel: 'average', // Default - could be asked in future
+    },
+    consumption: {
+      shoppingHabits: mapShoppingFrequency(consumption.shoppingFrequencyDescription || ''),
+      recyclingHabits: mapRecyclingHabits(consumption.recycledMaterials || []),
+    },
   }
 }
 
