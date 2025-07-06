@@ -488,10 +488,10 @@ async function transformUserInputToCalculationData(userInput: UserInput): Promis
       // - Commercial energy price services
       console.log('Using default electricity rate for calculation')
       const electricityRate = defaultElectricityRate
-      return (monthlyBill / electricityRate) * 12
+      return (monthlyBill * 12) / electricityRate
     } catch (error) {
       console.error('Error calculating electricity usage:', error)
-      return (monthlyBill / defaultElectricityRate) * 12
+      return (monthlyBill * 12) / defaultElectricityRate
     }
   }
 
@@ -505,10 +505,10 @@ async function transformUserInputToCalculationData(userInput: UserInput): Promis
       // - Energy data providers
       console.log('Using default natural gas rate for calculation')
       const gasRate = defaultGasRate
-      return (monthlyBill / gasRate) * 12
+      return (monthlyBill * 12) / gasRate
     } catch (error) {
       console.error('Error calculating natural gas usage:', error)
-      return (monthlyBill / defaultGasRate) * 12
+      return (monthlyBill * 12) / defaultGasRate
     }
   }
 
@@ -579,7 +579,7 @@ async function transformUserInputToCalculationData(userInput: UserInput): Promis
     ? await calculateElectricityFromBill(housing.monthlyElectricityBill)
     : 0
 
-  const naturalGasThems =
+  const naturalGasTerms =
     housing.usesNaturalGas && housing.monthlyNaturalGasBill
       ? await calculateNaturalGasFromBill(housing.monthlyNaturalGasBill)
       : 0
@@ -611,7 +611,7 @@ async function transformUserInputToCalculationData(userInput: UserInput): Promis
       size: 1000, // Default - could be inferred from household size
       energy: {
         electricity: electricityKWh,
-        naturalGas: naturalGasThems,
+        naturalGas: naturalGasTerms,
         heatingOil: heatingOilGallons,
       },
     },

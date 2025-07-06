@@ -219,7 +219,7 @@ export function Calculator() {
         energy: {
           electricity: (parseFloat(formData.monthlyElectricityBill) * 12) / 0.12 || 0, // Assuming $0.12/kWh average
           naturalGas: formData.usesNaturalGas
-            ? (parseFloat(formData.monthlyNaturalGasBill) * 12) / 1.2 || 0 // Assuming $1.20/therm average
+            ? (parseFloat(formData.monthlyNaturalGasBill) * 12) / 1.2 || 0 // Assuming $1.2/therm average
             : 0,
           heatingOil: annualHeatingOil,
         },
