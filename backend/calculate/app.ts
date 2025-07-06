@@ -18,7 +18,7 @@ const llm = new ChatOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
   modelName: 'gpt-3.5-turbo-0125',
   temperature: 0.7,
-  maxTokens: 500,
+  maxTokens: 1500, // Increased to accommodate full JSON response
 })
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -283,9 +283,7 @@ async function getAIAnalysis(carbonFootprint: number, data: CalculationData): Pr
   const promptTemplate = ChatPromptTemplate.fromMessages([
     [
       'system',
-      `You are a precise environmental sustainability expert. Analyze carbon footprint data and provide structured recommendations.
-      
-      ${parser.getFormatInstructions()}`,
+      'You are a precise environmental sustainability expert. Analyze carbon footprint data and provide structured recommendations.\n\nIMPORTANT: Respond with ONLY pure JSON - no markdown code blocks, no ```json tags, no additional text. Just the raw JSON object.\n\n{formatInstructions}',
     ],
     [
       'user',
@@ -305,15 +303,18 @@ async function getAIAnalysis(carbonFootprint: number, data: CalculationData): Pr
       2. 3 specific, actionable recommendations focusing on the highest impact categories
       3. Include potential CO2 reduction estimates and realistic goals for each recommendation
       4. Set appropriate priority levels (high/medium/low) based on impact potential
-      5. Include a standard disclaimer about AI-generated advice`,
+      5. Include a standard disclaimer about AI-generated advice
+
+      Respond with ONLY the JSON object, no markdown formatting.`,
     ],
   ])
 
-  // Create the chain
-  const chain = promptTemplate.pipe(llm).pipe(parser)
+  // Create the chain with custom parsing to handle markdown code blocks
+  const chain = promptTemplate.pipe(llm)
 
   try {
-    const result = await chain.invoke({
+    const llmResult = await chain.invoke({
+      formatInstructions: parser.getFormatInstructions(),
       carbonFootprint: carbonFootprint.toFixed(0),
       housingEmissions: housingEmissions.toFixed(0),
       transportEmissions: transportEmissions.toFixed(0),
@@ -334,6 +335,17 @@ async function getAIAnalysis(carbonFootprint: number, data: CalculationData): Pr
       recyclingHabits: data.consumption.recyclingHabits,
     })
 
+    // Clean the response by removing markdown code blocks if present
+    let cleanedContent = typeof llmResult.content === 'string' ? llmResult.content : JSON.stringify(llmResult.content)
+
+    // Remove ```json and ``` markdown blocks
+    cleanedContent = cleanedContent
+      .replace(/^```json\s*\n?/, '')
+      .replace(/\n?\s*```\s*$/, '')
+      .trim()
+
+    // Parse the cleaned JSON
+    const result = parser.parse(cleanedContent)
     return result
   } catch (error) {
     console.error('Error getting AI analysis:', error)

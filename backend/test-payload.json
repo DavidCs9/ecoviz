@@ -1,0 +1,36 @@
+{
+  "userId": "123e4567-e89b-12d3-a456-426614174000",
+  "data": {
+    "housing": {
+      "type": "apartment",
+      "size": 1000,
+      "energy": {
+        "electricity": 500,
+        "naturalGas": 100,
+        "heatingOil": 50
+      }
+    },
+    "transportation": {
+      "car": {
+        "milesDriven": 15000,
+        "fuelEfficiency": 25
+      },
+      "publicTransit": {
+        "busMiles": 1000,
+        "trainMiles": 500
+      },
+      "flights": {
+        "shortHaul": 2,
+        "longHaul": 1
+      }
+    },
+    "food": {
+      "dietType": "vegetarian",
+      "wasteLevel": "average"
+    },
+    "consumption": {
+      "shoppingHabits": "average",
+      "recyclingHabits": "some"
+    }
+  }
+}
