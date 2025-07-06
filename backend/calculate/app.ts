@@ -3,6 +3,13 @@ import { ChatOpenAI } from '@langchain/openai'
 import { ChatPromptTemplate } from '@langchain/core/prompts'
 import { StructuredOutputParser } from 'langchain/output_parsers'
 import { z } from 'zod'
+
+// Enable LangChain debug mode to log all prompts and responses
+if (process.env.NODE_ENV !== 'production') {
+  process.env.LANGCHAIN_TRACING_V2 = 'true'
+  process.env.LANGCHAIN_ENDPOINT = 'https://api.smith.langchain.com'
+  process.env.LANGCHAIN_API_KEY = process.env.LANGCHAIN_API_KEY || 'test'
+}
 import {
   CalculationData,
   ConsumptionData,
@@ -15,7 +22,7 @@ import {
 // Configure Langchain OpenAI
 const llm = new ChatOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-  modelName: 'gpt-3.5-turbo-0125',
+  modelName: 'gpt-4.1-nano-2025-04-14',
   temperature: 0.7,
   maxTokens: 1500, // Increased to accommodate full JSON response
 })
@@ -312,28 +319,35 @@ async function getAIAnalysis(carbonFootprint: number, data: CalculationData): Pr
   // Create the chain with custom parsing to handle markdown code blocks
   const chain = promptTemplate.pipe(llm)
 
+  // Prepare the input variables
+  const inputVariables = {
+    formatInstructions: parser.getFormatInstructions(),
+    carbonFootprint: carbonFootprint.toFixed(0),
+    housingEmissions: housingEmissions.toFixed(0),
+    transportEmissions: transportEmissions.toFixed(0),
+    foodEmissions: foodEmissions.toFixed(0),
+    consumptionEmissions: consumptionEmissions.toFixed(0),
+    housingPercentage: housingPercentage.toFixed(1),
+    transportPercentage: transportPercentage.toFixed(1),
+    foodPercentage: foodPercentage.toFixed(1),
+    consumptionPercentage: consumptionPercentage.toFixed(1),
+    housingType: data.housing.type,
+    electricity: data.housing.energy.electricity,
+    naturalGas: data.housing.energy.naturalGas,
+    milesDriven: data.transportation.car.milesDriven,
+    totalFlights: data.transportation.flights.shortHaul + data.transportation.flights.longHaul,
+    dietType: data.food.dietType,
+    wasteLevel: data.food.wasteLevel,
+    shoppingHabits: data.consumption.shoppingHabits,
+    recyclingHabits: data.consumption.recyclingHabits,
+  }
+
+  // Log the formatted prompt
+  const formattedPrompt = await promptTemplate.formatMessages(inputVariables)
+  console.log('AI Analysis Prompt:', JSON.stringify(formattedPrompt, null, 2))
+
   try {
-    const llmResult = await chain.invoke({
-      formatInstructions: parser.getFormatInstructions(),
-      carbonFootprint: carbonFootprint.toFixed(0),
-      housingEmissions: housingEmissions.toFixed(0),
-      transportEmissions: transportEmissions.toFixed(0),
-      foodEmissions: foodEmissions.toFixed(0),
-      consumptionEmissions: consumptionEmissions.toFixed(0),
-      housingPercentage: housingPercentage.toFixed(1),
-      transportPercentage: transportPercentage.toFixed(1),
-      foodPercentage: foodPercentage.toFixed(1),
-      consumptionPercentage: consumptionPercentage.toFixed(1),
-      housingType: data.housing.type,
-      electricity: data.housing.energy.electricity,
-      naturalGas: data.housing.energy.naturalGas,
-      milesDriven: data.transportation.car.milesDriven,
-      totalFlights: data.transportation.flights.shortHaul + data.transportation.flights.longHaul,
-      dietType: data.food.dietType,
-      wasteLevel: data.food.wasteLevel,
-      shoppingHabits: data.consumption.shoppingHabits,
-      recyclingHabits: data.consumption.recyclingHabits,
-    })
+    const llmResult = await chain.invoke(inputVariables)
 
     // Clean the response by removing markdown code blocks if present
     let cleanedContent = typeof llmResult.content === 'string' ? llmResult.content : JSON.stringify(llmResult.content)
