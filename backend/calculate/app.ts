@@ -22,6 +22,12 @@ const llm = new ChatOpenAI({
 })
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  console.log('Lambda function invoked', {
+    httpMethod: event.httpMethod,
+    path: event.path,
+    requestId: event.requestContext.requestId,
+  })
+
   try {
     if (event.httpMethod !== 'POST') {
       return {
@@ -39,8 +45,10 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
     const requestBody = JSON.parse(event.body || '{}')
 
     // Validate request using Zod schema
+    console.log('Validating request body')
     const validationResult = CalculateRequestSchema.safeParse(requestBody)
     if (!validationResult.success) {
+      console.log('Validation failed', validationResult.error.issues)
       return {
         statusCode: 400,
         headers: {
@@ -60,14 +68,21 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
 
     const { userId, data } = validationResult.data
 
+    console.log('Starting carbon footprint calculation', { userId })
     const carbonFootprint = calculateTotalCarbonFootprint(data)
+    console.log('Carbon footprint calculated', { carbonFootprint })
+
+    console.log('Starting AI analysis')
     const aiAnalysis = await getAIAnalysis(carbonFootprint, data)
+    console.log('AI analysis completed')
+
     const calculationId = generateCalculationId(userId)
     const averages = {
       global: 4000, // 4 tons in kg
       us: 16000, // 16 tons in kg
     }
 
+    console.log('Sending successful response', { calculationId, carbonFootprint: carbonFootprint.toFixed(2) })
     return {
       statusCode: 200,
       headers: {
@@ -85,7 +100,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
       }),
     }
   } catch (err) {
-    console.log(err)
+    console.error('Lambda function error:', err)
     return {
       statusCode: 500,
       headers: {

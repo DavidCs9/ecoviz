@@ -27,6 +27,13 @@ Globals:
       LogFormat: JSON
 
 Resources:
+  # CloudWatch Log Group for Lambda function
+  CalculateFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${AWS::StackName}-CalculateFunction"
+      RetentionInDays: 14
+
   ApiGatewayApi:
     Type: AWS::Serverless::Api
     Properties:
@@ -49,6 +56,8 @@ Resources:
       Environment:
         Variables:
           OPENAI_API_KEY: !Ref OpenAIAPIKey
+      Policies:
+        - CloudWatchLogsFullAccess
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
       BuildProperties:
