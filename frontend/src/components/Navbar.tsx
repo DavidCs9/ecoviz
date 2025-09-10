@@ -1,4 +1,3 @@
-import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useFeatureFlagEnabled } from 'posthog-js/react'
 import { Leaf } from 'lucide-react'
