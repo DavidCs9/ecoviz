@@ -1,4 +1,4 @@
-import { ShieldCheck, Server, Database, Brain, Cpu, BarChart, Box, AlertTriangle } from 'lucide-react'
+import { ShieldCheck, Server, Database, Brain, BarChart, Box } from 'lucide-react'
 
 import { LucideIcon } from 'lucide-react'
 
@@ -22,43 +22,33 @@ const AboutEcoViz = () => {
   const technologies = [
     {
       icon: ShieldCheck,
-      title: 'React & Vite',
-      description: 'Modern frontend framework for a responsive UI',
+      title: 'React & TypeScript',
+      description: 'Type-safe frontend with modern components',
     },
     {
       icon: Server,
-      title: 'Node.js & Express',
-      description: 'Efficient backend services',
-    },
-    {
-      icon: Database,
-      title: 'Amazon DynamoDB',
-      description: 'Scalable NoSQL database for data storage',
-    },
-    {
-      icon: Cpu,
-      title: 'AWS Services',
-      description: 'Reliable cloud infrastructure (EC2, API Gateway, etc.)',
+      title: 'AWS Lambda',
+      description: 'Serverless backend for calculations',
     },
     {
       icon: Brain,
-      title: 'OpenAI API',
-      description: 'AI-powered recommendations',
+      title: 'OpenAI GPT-4',
+      description: 'AI-powered carbon footprint analysis',
     },
     {
       icon: BarChart,
-      title: 'PostHog',
-      description: 'Product analytics for user insights',
+      title: 'Recharts',
+      description: 'Interactive data visualizations',
+    },
+    {
+      icon: Database,
+      title: 'Radix UI',
+      description: 'Accessible component library',
     },
     {
       icon: Box,
-      title: 'Docker',
-      description: 'Containerization for consistent deployments',
-    },
-    {
-      icon: AlertTriangle,
-      title: 'Sentry',
-      description: 'Real-time error tracking and monitoring',
+      title: 'Vercel',
+      description: 'Frontend deployment platform',
     },
   ]
 
@@ -68,24 +58,20 @@ const AboutEcoViz = () => {
 
       <section className="mb-12">
         <h2 className="text-2xl font-semibold text-blue-100 mb-4">Our Mission</h2>
-        <p className="text-white mb-4">
-          EcoViz was born from a passion for environmental sustainability and the belief that individual actions can
-          make a significant impact. Our mission is to empower people with the knowledge and tools they need to
-          understand and reduce their carbon footprint.
-        </p>
         <p className="text-white">
-          By providing an easy-to-use calculator, intuitive visualizations, and AI-powered recommendations, we aim to
-          make environmental consciousness accessible and actionable for everyone.
+          EcoViz helps you calculate, visualize, and reduce your carbon footprint. We provide AI-powered analysis across
+          housing, transportation, food, and consumption with personalized recommendations for environmental impact
+          reduction.
         </p>
       </section>
 
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold text-green-200 mb-4">Why We Built It</h2>
+        <h2 className="text-2xl font-semibold text-green-200 mb-4">Architecture</h2>
         <ul className="list-disc list-inside text-white space-y-2">
-          <li>To raise awareness about individual carbon footprints</li>
-          <li>To provide actionable insights for reducing environmental impact</li>
-          <li>To leverage technology in the fight against climate change</li>
-          <li>To create a community of environmentally conscious individuals</li>
+          <li>Serverless AWS Lambda backend with API Gateway</li>
+          <li>React & TypeScript frontend with modern tooling</li>
+          <li>AI analysis powered by LangChain & OpenAI GPT-4</li>
+          <li>Real-time visualizations with Recharts</li>
         </ul>
       </section>
 
