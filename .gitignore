@@ -1,3 +1,6 @@
 .vscode
 .env
 node_modules
+
+# TypeScript build info files
+*.tsbuildinfo
