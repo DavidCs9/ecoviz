@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from '@jest/globals'
 import { act, renderHook } from '@testing-library/react'
-import { useDataPersistence, useDataPersistenceStore, PersistedDataSchema } from '../hooks/useDataPersistence'
+import { useDataPersistence, useDataPersistenceStore, PersistedDataSchema } from '../stores/dataStore'
 
 // Mock localStorage
 const localStorageMock = {

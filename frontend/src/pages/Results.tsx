@@ -5,7 +5,7 @@ import { useSpring, animated } from 'react-spring'
 import { PieChart, Pie, Cell, ResponsiveContainer, Sector, BarChart, XAxis, YAxis, Tooltip, Bar } from 'recharts'
 import { Leaf, Car, Zap, Coffee, ShoppingBag } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { type PersistedData, useDataPersistence } from '../hooks/useDataPersistence'
+import { type PersistedData, useDataPersistence } from '../stores/dataStore'
 
 const RADIAN = Math.PI / 180
 

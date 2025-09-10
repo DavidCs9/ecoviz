@@ -10,7 +10,7 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from '../components/ui/navigation-menu'
-import { useDataPersistence } from '@/hooks/useDataPersistence'
+import { useDataPersistenceStore } from '@/stores/dataStore'
 
 const navItems = [
   { name: 'Home', path: '/' },
@@ -21,7 +21,7 @@ const navItems = [
 
 const Navbar = () => {
   const location = useLocation()
-  const { persistedData } = useDataPersistence()
+  const { persistedData } = useDataPersistenceStore()
 
   const currentNavItems = useMemo(() => {
     const baseItems = [...navItems]
