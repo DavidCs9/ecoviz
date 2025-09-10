@@ -12,7 +12,6 @@ import { Progress } from '../components/ui/progress'
 import { v4 as uuidv4 } from 'uuid'
 
 const API_URL = import.meta.env.VITE_API_URL
-console.log(API_URL)
 const steps = ['Housing', 'Transportation', 'Food', 'Consumption']
 
 const loadingFacts = [
