@@ -35,7 +35,11 @@ if ! git diff --cached --quiet; then
   run_frontend_checks() {
     echo "🎨 Running frontend checks..."
     cd frontend
-    
+
+    # Run formatting check
+    echo "  🎨 Formatting frontend..."
+    npm run format || { echo "❌ Frontend formatting failed"; exit 1; }
+
     # Run linting
     echo "  📋 Linting frontend..."
     npm run lint || { echo "❌ Frontend linting failed"; exit 1; }
