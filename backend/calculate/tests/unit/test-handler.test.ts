@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import { lambdaHandler } from '../../app'
+import { lambdaHandler } from '../../handler'
 import { expect, describe, it, beforeAll } from '@jest/globals'
 
 describe('Unit test for app handler', function () {

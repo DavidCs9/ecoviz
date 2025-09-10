@@ -70,6 +70,44 @@ interface AIAnalysisResponse {
   disclaimer: string
 }
 
+interface UserInput {
+  location?: { zipCode?: string }
+  housing?: {
+    monthlyElectricityBill?: number
+    usesNaturalGas?: boolean
+    monthlyNaturalGasBill?: number
+    usesHeatingOil?: boolean
+    heatingOilFillsPerYear?: number
+    heatingOilTankSizeGallons?: number
+  }
+  transportation?: {
+    car?: {
+      make?: string
+      model?: string
+      year?: number
+      commuteMilesOneWay?: number
+      commuteDaysPerWeek?: number
+      weeklyErrandsMilesRange?: string
+    }
+    publicTransit?: {
+      weeklyBusMiles?: number
+      weeklyTrainMiles?: number
+    }
+    flights?: {
+      under3Hours?: number
+      between3And6Hours?: number
+      over6Hours?: number
+    }
+  }
+  food?: {
+    dietDescription?: string
+  }
+  consumption?: {
+    shoppingFrequencyDescription?: string
+    recycledMaterials?: string[]
+  }
+}
+
 export {
   HousingData,
   TransportationData,
@@ -78,4 +116,5 @@ export {
   CalculationData,
   AIRecommendation,
   AIAnalysisResponse,
+  UserInput,
 }
