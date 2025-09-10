@@ -5,10 +5,13 @@
     "@babel/preset-typescript"
   ],
   "plugins": [
-    ["babel-plugin-transform-vite-meta-env", {
-      "VITE_API_URL": "http://localhost:3000",
-      "VITE_POSTHOG_API_KEY": "",
-      "VITE_SENTRY_DSN": ""
-    }]
+    [
+      "babel-plugin-transform-vite-meta-env",
+      {
+        "VITE_API_URL": "http://localhost:3000",
+        "VITE_POSTHOG_API_KEY": "",
+        "VITE_SENTRY_DSN": ""
+      }
+    ]
   ]
 }
