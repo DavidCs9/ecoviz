@@ -63,42 +63,40 @@ const AboutEcoViz = () => {
   ]
 
   return (
-    <div className="min-h-screen  py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold text-white mb-8 text-center">About EcoViz</h1>
+    <div className="max-w-4xl mx-auto">
+      <h1 className="text-4xl font-bold text-white mb-8 text-center">About EcoViz</h1>
 
-        <section className="mb-12">
-          <h2 className="text-2xl font-semibold text-blue-100 mb-4">Our Mission</h2>
-          <p className="text-white mb-4">
-            EcoViz was born from a passion for environmental sustainability and the belief that individual actions can
-            make a significant impact. Our mission is to empower people with the knowledge and tools they need to
-            understand and reduce their carbon footprint.
-          </p>
-          <p className="text-white">
-            By providing an easy-to-use calculator, intuitive visualizations, and AI-powered recommendations, we aim to
-            make environmental consciousness accessible and actionable for everyone.
-          </p>
-        </section>
+      <section className="mb-12">
+        <h2 className="text-2xl font-semibold text-blue-100 mb-4">Our Mission</h2>
+        <p className="text-white mb-4">
+          EcoViz was born from a passion for environmental sustainability and the belief that individual actions can
+          make a significant impact. Our mission is to empower people with the knowledge and tools they need to
+          understand and reduce their carbon footprint.
+        </p>
+        <p className="text-white">
+          By providing an easy-to-use calculator, intuitive visualizations, and AI-powered recommendations, we aim to
+          make environmental consciousness accessible and actionable for everyone.
+        </p>
+      </section>
 
-        <section className="mb-12">
-          <h2 className="text-2xl font-semibold text-green-200 mb-4">Why We Built It</h2>
-          <ul className="list-disc list-inside text-white space-y-2">
-            <li>To raise awareness about individual carbon footprints</li>
-            <li>To provide actionable insights for reducing environmental impact</li>
-            <li>To leverage technology in the fight against climate change</li>
-            <li>To create a community of environmentally conscious individuals</li>
-          </ul>
-        </section>
+      <section className="mb-12">
+        <h2 className="text-2xl font-semibold text-green-200 mb-4">Why We Built It</h2>
+        <ul className="list-disc list-inside text-white space-y-2">
+          <li>To raise awareness about individual carbon footprints</li>
+          <li>To provide actionable insights for reducing environmental impact</li>
+          <li>To leverage technology in the fight against climate change</li>
+          <li>To create a community of environmentally conscious individuals</li>
+        </ul>
+      </section>
 
-        <section>
-          <h2 className="text-2xl font-semibold text-yellow-200 mb-4">Technologies We Use</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {technologies.map((tech, index) => (
-              <TechItem key={index} {...tech} />
-            ))}
-          </div>
-        </section>
-      </div>
+      <section>
+        <h2 className="text-2xl font-semibold text-yellow-200 mb-4">Technologies We Use</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {technologies.map((tech, index) => (
+            <TechItem key={index} {...tech} />
+          ))}
+        </div>
+      </section>
     </div>
   )
 }

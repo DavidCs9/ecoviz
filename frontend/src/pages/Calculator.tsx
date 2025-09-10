@@ -696,7 +696,7 @@ export function Calculator() {
   }
 
   return (
-    <div className="w-full h-screen p-6">
+    <div className="w-full p-6">
       <Card className="max-w-2xl mx-auto bg-gradient-to-br from-green-50 to-green-100 max-h-[80vh] overflow-y-auto">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-green-800">Carbon Footprint Calculator</CardTitle>

@@ -2,7 +2,7 @@ import { Leaf, Github, Linkedin } from 'lucide-react'
 
 const Footer = () => {
   return (
-    <footer className=" text-white py-6">
+    <footer className="text-white py-6 fixed bottom-0 w-full">
       <div className="container mx-auto px-4">
         <div className="flex text-sm md:text-base flex-row justify-between items-center">
           <a href="/" className="flex items-center mb-4 md:mb-0">

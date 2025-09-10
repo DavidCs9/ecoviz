@@ -11,7 +11,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-400 to-blue-500 text-gray-100">
       <Navbar />
-      <main>{children}</main>
+      <main className="flex items-center justify-center p-6 md:p-12">{children}</main>
       <Footer />
       <Toaster />
     </div>
