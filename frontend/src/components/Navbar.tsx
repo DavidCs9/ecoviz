@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
+import { useMemo } from 'react'
 import { useFeatureFlagEnabled } from 'posthog-js/react'
 import { Leaf } from 'lucide-react'
 import { Button } from '../components/ui/button'
@@ -24,9 +25,16 @@ const Navbar = () => {
   const flagEnabled = useFeatureFlagEnabled('new-navbar')
   const { persistedData } = useDataPersistence()
 
-  if (persistedData) {
-    navItems.push({ name: 'Results', path: '/results' })
-  }
+  const currentNavItems = useMemo(() => {
+    const baseItems = [...navItems]
+    if (persistedData) {
+      const hasResults = baseItems.some(item => item.path === '/results')
+      if (!hasResults) {
+        baseItems.push({ name: 'Results', path: '/results' })
+      }
+    }
+    return baseItems
+  }, [persistedData])
 
   if (flagEnabled) {
     // Render the new navbar layout
@@ -45,7 +53,7 @@ const Navbar = () => {
             <div className="hidden md:block">
               <NavigationMenu>
                 <NavigationMenuList>
-                  {navItems.map(item => (
+                  {currentNavItems.map(item => (
                     <NavigationMenuItem key={item.name}>
                       <Link to={item.path}>
                         <NavigationMenuLink
@@ -69,7 +77,7 @@ const Navbar = () => {
                 </SheetTrigger>
                 <SheetContent>
                   <div className="flex flex-col space-y-4 mt-4">
-                    {navItems.map(item => (
+                    {currentNavItems.map(item => (
                       <Link
                         key={item.name}
                         to={item.path}
@@ -105,7 +113,7 @@ const Navbar = () => {
           <div className="hidden md:block">
             <NavigationMenu>
               <NavigationMenuList>
-                {navItems.map(item => (
+                {currentNavItems.map(item => (
                   <NavigationMenuItem key={item.name}>
                     <Link to={item.path}>
                       <NavigationMenuLink
@@ -129,7 +137,7 @@ const Navbar = () => {
               </SheetTrigger>
               <SheetContent>
                 <div className="flex flex-col space-y-4 mt-4">
-                  {navItems.map(item => (
+                  {currentNavItems.map(item => (
                     <Link
                       key={item.name}
                       to={item.path}
