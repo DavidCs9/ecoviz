@@ -1,93 +1,148 @@
-import { useState, useEffect } from 'react'
+import { z } from 'zod'
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
-interface CalculationData {
-  housing: {
-    type: string
-    size: number
-    energy: {
-      electricity: number
-      naturalGas: number
-      heatingOil: number
-    }
-  }
-  transportation: {
-    car: {
-      milesDriven: number
-      fuelEfficiency: number
-    }
-    publicTransit: {
-      busMiles: number
-      trainMiles: number
-    }
-    flights: {
-      shortHaul: number
-      longHaul: number
-    }
-  }
-  food: {
-    dietType: string
-    wasteLevel: string
-  }
-  consumption: {
-    shoppingHabits: string
-    recyclingHabits: string
-  }
+// Zod schemas for validation
+const CalculationDataSchema = z.object({
+  housing: z.object({
+    type: z.string(),
+    size: z.number(),
+    energy: z.object({
+      electricity: z.number(),
+      naturalGas: z.number(),
+      heatingOil: z.number(),
+    }),
+  }),
+  transportation: z.object({
+    car: z.object({
+      milesDriven: z.number(),
+      fuelEfficiency: z.number(),
+    }),
+    publicTransit: z.object({
+      busMiles: z.number(),
+      trainMiles: z.number(),
+    }),
+    flights: z.object({
+      shortHaul: z.number(),
+      longHaul: z.number(),
+    }),
+  }),
+  food: z.object({
+    dietType: z.string(),
+    wasteLevel: z.string(),
+  }),
+  consumption: z.object({
+    shoppingHabits: z.string(),
+    recyclingHabits: z.string(),
+  }),
+})
+
+const AIRecommendationSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  dataReference: z.string(),
+  potentialImpact: z.object({
+    co2Reduction: z.number(),
+    unit: z.literal('kg/year'),
+  }),
+  goal: z.string(),
+  priority: z.enum(['high', 'medium', 'low']),
+  category: z.enum(['housing', 'transportation', 'food', 'consumption']),
+})
+
+const AIAnalysisResponseSchema = z.object({
+  summary: z.object({
+    totalEmissions: z.number(),
+    comparisonToAverages: z.object({
+      global: z.number(),
+      us: z.number(),
+    }),
+    topContributors: z.array(
+      z.object({
+        category: z.string(),
+        percentage: z.number(),
+        emissions: z.number(),
+      }),
+    ),
+  }),
+  recommendations: z.array(AIRecommendationSchema),
+  disclaimer: z.string(),
+})
+
+export const PersistedDataSchema = z.object({
+  carbonFootprint: z.number(),
+  calculationData: CalculationDataSchema,
+  aiAnalysis: AIAnalysisResponseSchema,
+  averages: z.object({
+    global: z.number(),
+    us: z.number(),
+  }),
+})
+
+// Infer TypeScript types from Zod schemas
+export type CalculationData = z.infer<typeof CalculationDataSchema>
+export type AIRecommendation = z.infer<typeof AIRecommendationSchema>
+export type AIAnalysisResponse = z.infer<typeof AIAnalysisResponseSchema>
+export type PersistedData = z.infer<typeof PersistedDataSchema>
+
+// Zustand store with persistence
+interface DataPersistenceStore {
+  persistedData: PersistedData | null
+  saveData: (data: PersistedData) => void
+  clearData: () => void
+  validateAndSaveData: (data: unknown) => { success: boolean; error?: string }
 }
 
-interface AIRecommendation {
-  title: string
-  description: string
-  dataReference: string
-  potentialImpact: {
-    co2Reduction: number
-    unit: 'kg/year'
-  }
-  goal: string
-  priority: 'high' | 'medium' | 'low'
-  category: 'housing' | 'transportation' | 'food' | 'consumption'
-}
+export const useDataPersistenceStore = create<DataPersistenceStore>()(
+  persist(
+    set => ({
+      persistedData: null,
 
-interface AIAnalysisResponse {
-  summary: {
-    totalEmissions: number
-    comparisonToAverages: {
-      global: number
-      us: number
-    }
-    topContributors: Array<{
-      category: string
-      percentage: number
-      emissions: number
-    }>
-  }
-  recommendations: AIRecommendation[]
-  disclaimer: string
-}
+      saveData: (data: PersistedData) => {
+        try {
+          // Validate data before saving
+          const validatedData = PersistedDataSchema.parse(data)
+          set({ persistedData: validatedData })
+        } catch (error) {
+          console.error('Failed to save data - validation error:', error)
+          throw new Error('Invalid data format')
+        }
+      },
 
-export interface PersistedData {
-  carbonFootprint: number
-  calculationData: CalculationData
-  aiAnalysis: AIAnalysisResponse
-  averages: {
-    global: number
-    us: number
-  }
-}
+      clearData: () => {
+        set({ persistedData: null })
+      },
 
+      validateAndSaveData: (data: unknown) => {
+        try {
+          const validatedData = PersistedDataSchema.parse(data)
+          set({ persistedData: validatedData })
+          return { success: true }
+        } catch (error) {
+          const errorMessage =
+            error instanceof z.ZodError
+              ? `Validation failed: ${error.errors.map(e => e.message).join(', ')}`
+              : 'Unknown validation error'
+          return { success: false, error: errorMessage }
+        }
+      },
+    }),
+    {
+      name: 'ecoviz-results-data',
+      version: 1,
+      partialize: state => ({ persistedData: state.persistedData }),
+    },
+  ),
+)
+
+// Hook for backward compatibility and ease of use
 export const useDataPersistence = () => {
-  const [persistedData, setPersistedData] = useState<PersistedData | null>(null)
+  const { persistedData, saveData, clearData, validateAndSaveData } = useDataPersistenceStore()
 
-  useEffect(() => {
-    const storedData = localStorage.getItem('resultsData')
-    if (storedData) {
-      setPersistedData(JSON.parse(storedData))
-    }
-  }, [])
-
-  const saveData = (data: PersistedData) => {
-    localStorage.setItem('resultsData', JSON.stringify(data))
-    setPersistedData(data)
+  return {
+    persistedData,
+    saveData,
+    clearData,
+    validateAndSaveData,
   }
-
-  return { persistedData, saveData }
 }

@@ -8,6 +8,7 @@ import { Checkbox } from '../components/ui/checkbox'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/ui/card'
 import { Button } from '../components/ui/button'
 import { useToast } from '../hooks/use-toast'
+import { useDataPersistence } from '../hooks/useDataPersistence'
 import { Progress } from '../components/ui/progress'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -27,6 +28,7 @@ const loadingFacts = [
 export function Calculator() {
   const { toast } = useToast()
   const navigate = useNavigate()
+  const { validateAndSaveData } = useDataPersistence()
   const [currentStep, setCurrentStep] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
   const [loadingProgress, setLoadingProgress] = useState(0)
@@ -320,8 +322,11 @@ export function Calculator() {
         averages: result.averages,
       }
 
-      // Save to localStorage
-      localStorage.setItem('resultsData', JSON.stringify(resultsData))
+      // Save using Zustand store with Zod validation
+      const saveResult = validateAndSaveData(resultsData)
+      if (!saveResult.success) {
+        throw new Error(`Data validation failed: ${saveResult.error}`)
+      }
 
       navigate('/results')
     } catch (error) {

@@ -5,7 +5,7 @@ import { useSpring, animated } from 'react-spring'
 import { PieChart, Pie, Cell, ResponsiveContainer, Sector, BarChart, XAxis, YAxis, Tooltip, Bar } from 'recharts'
 import { Leaf, Car, Zap, Coffee, ShoppingBag } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { PersistedData } from '../hooks/useDataPersistence'
+import { type PersistedData, useDataPersistence } from '../hooks/useDataPersistence'
 
 const RADIAN = Math.PI / 180
 
@@ -56,6 +56,7 @@ const renderActiveShape = (props: any) => {
 
 const Results: React.FC = () => {
   const navigate = useNavigate()
+  const { persistedData } = useDataPersistence()
   const [resultData, setResultData] = useState<PersistedData | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeIndex, setActiveIndex] = useState(0)
@@ -66,15 +67,14 @@ const Results: React.FC = () => {
   })
 
   useEffect(() => {
-    const storedData = localStorage.getItem('resultsData')
-    if (storedData) {
-      setResultData(JSON.parse(storedData))
+    if (persistedData) {
+      setResultData(persistedData)
     } else {
       console.log('No data available, redirecting')
       navigate('/')
     }
     setLoading(false)
-  }, [navigate])
+  }, [navigate, persistedData])
 
   if (loading) {
     return <div>Loading...</div>
