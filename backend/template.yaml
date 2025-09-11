@@ -39,7 +39,11 @@ Resources:
     Properties:
       StageName: prod
       TracingEnabled: True
-      Cors: "'*'"
+      Cors:
+        AllowMethods: "'POST, OPTIONS'"
+        AllowHeaders: "'Content-Type, Authorization, X-Requested-With'"
+        AllowOrigin: "'https://ecoviz-frontend.vercel.app'"
+        MaxAge: "'86400'"
 
   CalculateFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -51,6 +55,13 @@ Resources:
           Properties:
             Path: /calculate
             Method: post
+            RestApiId:
+              Ref: ApiGatewayApi
+        CalculateOptions:
+          Type: Api
+          Properties:
+            Path: /calculate
+            Method: options
             RestApiId:
               Ref: ApiGatewayApi
       Environment:
