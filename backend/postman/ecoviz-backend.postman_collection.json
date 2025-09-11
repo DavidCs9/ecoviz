@@ -1,0 +1,37 @@
+{
+  "info": {
+    "_postman_id": "a8a0b6e8-c8e6-4a7a-8b0a-2e3e4e5e6e7e",
+    "name": "Ecoviz Backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Calculate",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userId\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"userInput\": {\n    \"location\": {\n      \"zipCode\": \"90210\"\n    },\n    \"housing\": {\n      \"monthlyElectricityBill\": 120,\n      \"usesNaturalGas\": true,\n      \"monthlyNaturalGasBill\": 45,\n      \"usesHeatingOil\": false\n    },\n    \"transportation\": {\n      \"car\": {\n        \"make\": \"Toyota\",\n        \"model\": \"Prius\",\n        \"year\": 2020,\n        \"commuteMilesOneWay\": 15,\n        \"commuteDaysPerWeek\": 5,\n        \"weeklyErrandsMilesRange\": \"10-25\"\n      },\n      \"publicTransit\": {\n        \"weeklyBusMiles\": 10,\n        \"weeklyTrainMiles\": 5\n      },\n      \"flights\": {\n        \"under3Hours\": 2,\n        \"between3And6Hours\": 1,\n        \"over6Hours\": 0\n      }\n    },\n    \"food\": {\n      \"dietDescription\": \"I eat meat 2-3 times per week, mostly chicken and fish\"\n    },\n    \"consumption\": {\n      \"shoppingFrequencyDescription\": \"I shop for new clothes and items monthly\",\n      \"recycledMaterials\": [\"plastic\", \"paper\", \"glass\"]\n    }\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{ApiGatewayEndpoint}}/calculate",
+          "host": ["{{ApiGatewayEndpoint}}"],
+          "path": ["calculate"]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "ApiGatewayEndpoint",
+      "value": "your-api-gateway-endpoint"
+    }
+  ]
+}
