@@ -11,7 +11,9 @@
     "format:check": "prettier --check '**/*.{ts,js,json,md}'",
     "test": "jest",
     "build": "npm run lint && npm run format && tsc",
-    "deploy": "npm run build && dotenv -e .env -- sam deploy --parameter-overrides ParameterKey=OpenAIAPIKey,ParameterValue=$OPENAI_API_KEY"
+    "deploy": "npm run build && dotenv -e .env -- sam deploy --parameter-overrides ParameterKey=OpenAIAPIKey,ParameterValue=$OPENAI_API_KEY",
+    "local:invoke": "sam local invoke CalculateFunction --event events/calculate.json",
+    "local:api": "sam local start-api --port 3001"
   },
   "dependencies": {
     "@langchain/core": "^0.3.61",
