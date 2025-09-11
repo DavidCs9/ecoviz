@@ -1,4 +1,4 @@
-import { lambdaHandler } from '../../handler'
+import { handler } from '../../app'
 import { APIGatewayProxyEvent } from 'aws-lambda'
 import { expect, describe, it, beforeAll } from '@jest/globals'
 
@@ -94,7 +94,7 @@ describe('Calculation Verification Tests', function () {
       stageVariables: {},
     }
 
-    const result = await lambdaHandler(event)
+    const result = await handler(event)
     const responseBody = JSON.parse(result.body)
 
     console.log('Full response:', JSON.stringify(responseBody, null, 2))
@@ -226,7 +226,7 @@ describe('Calculation Verification Tests', function () {
       stageVariables: {},
     }
 
-    const result = await lambdaHandler(event)
+    const result = await handler(event)
     const responseBody = JSON.parse(result.body)
 
     // Electric vehicle should have much lower transportation emissions
