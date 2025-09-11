@@ -11,6 +11,7 @@ import {
 import { aiAnalysisSchema } from './schema/schema'
 import { ChatOpenAI } from '@langchain/openai'
 import { ChatPromptTemplate } from '@langchain/core/prompts'
+import { EmissionFactors, EnergyRates, VehicleData, InputMappings } from './config'
 
 class Calculator {
   llm = new ChatOpenAI({
@@ -30,8 +31,8 @@ class Calculator {
     const calculationId = `${userId}-${Date.now()}`
 
     const averages = {
-      global: 4000, // 4 tons in kg
-      us: 16000, // 16 tons in kg
+      global: EmissionFactors.GLOBAL_AVERAGE_KG_CO2_YEAR,
+      us: EmissionFactors.US_AVERAGE_KG_CO2_YEAR,
     }
 
     return {
@@ -47,153 +48,6 @@ class Calculator {
   private async _transformUserInputToCalculationData(userInput: UserInput): Promise<CalculationData> {
     console.log('Transforming user input to calculation data')
 
-    // Helper functions for mapping user inputs
-    const mapDietDescription = (description: string): string => {
-      switch (description) {
-        case 'Meat in most meals':
-          return 'meat-heavy'
-        case 'Meat a few times a week':
-          return 'average'
-        case 'Vegetarian (no meat)':
-          return 'vegetarian'
-        case 'Vegan (no animal products)':
-          return 'vegan'
-        default:
-          return 'average'
-      }
-    }
-
-    const mapShoppingFrequency = (description: string): string => {
-      switch (description) {
-        case 'I buy new things frequently.':
-          return 'frequent'
-        case 'I buy new things every now and then.':
-          return 'average'
-        case 'I rarely buy new things and prefer second-hand.':
-          return 'minimal'
-        default:
-          return 'average'
-      }
-    }
-
-    const mapRecyclingHabits = (materials: string[]): string => {
-      if (materials.includes('None of these')) {
-        return 'none'
-      }
-      if (materials.length >= 3) {
-        return 'all'
-      }
-      if (materials.length >= 1) {
-        return 'some'
-      }
-      return 'none'
-    }
-
-    const mapErrandsMiles = (range: string): number => {
-      switch (range) {
-        case '0-25':
-          return 12.5
-        case '25-50':
-          return 37.5
-        case '50-100':
-          return 75
-        case '100+':
-          return 125
-        default:
-          return 37.5
-      }
-    }
-
-    // Calculate energy consumption from bills
-    const calculateElectricityFromBill = async (monthlyBill: number): Promise<number> => {
-      // Default average electricity rate ($/kWh) - from EIA data
-      const defaultElectricityRate = 0.16
-      try {
-        // For now, use default rates. In production, integrate with:
-        // - EIA API: https://api.eia.gov/v2/electricity/retail-sales/
-        // - Utility company APIs
-        // - Commercial energy price services
-        console.log('Using default electricity rate for calculation')
-        const electricityRate = defaultElectricityRate
-        return (monthlyBill * 12) / electricityRate
-      } catch (error) {
-        console.error('Error calculating electricity usage:', error)
-        return (monthlyBill * 12) / defaultElectricityRate
-      }
-    }
-
-    const calculateNaturalGasFromBill = async (monthlyBill: number): Promise<number> => {
-      // Default average natural gas rate ($/therm) - from EIA data
-      const defaultGasRate = 1.2
-      try {
-        // For now, use default rates. In production, integrate with:
-        // - EIA API: https://api.eia.gov/v2/natural-gas/pri/sum/
-        // - Local utility APIs
-        // - Energy data providers
-        console.log('Using default natural gas rate for calculation')
-        const gasRate = defaultGasRate
-        return (monthlyBill * 12) / gasRate
-      } catch (error) {
-        console.error('Error calculating natural gas usage:', error)
-        return (monthlyBill * 12) / defaultGasRate
-      }
-    }
-
-    const getCarFuelEfficiency = async (make: string, model: string, year: number): Promise<number> => {
-      // Default MPG for fallback
-      const defaultMPG = 25
-      try {
-        console.log(`Getting fuel efficiency for ${year} ${make} ${model}`)
-
-        // For now, use enhanced defaults based on common vehicle data
-        // In production, integrate with EPA Fuel Economy API:
-        // https://www.fueleconomy.gov/feg/ws/index.shtml
-
-        // Enhanced defaults based on common make/model patterns
-        const makeUpper = make.toUpperCase()
-        const modelUpper = model.toUpperCase()
-
-        // Hybrid/Electric vehicles
-        if (modelUpper.includes('PRIUS') || modelUpper.includes('HYBRID')) {
-          return year >= 2020 ? 52 : year >= 2010 ? 45 : 40
-        }
-
-        // Electric vehicles (use equivalent MPG)
-        if (modelUpper.includes('TESLA') || modelUpper.includes('ELECTRIC') || modelUpper.includes('EV')) {
-          return 100 // Equivalent MPG for electric
-        }
-
-        // Luxury/Large vehicles
-        if (
-          ['BMW', 'MERCEDES', 'AUDI', 'LEXUS'].includes(makeUpper) ||
-          modelUpper.includes('SUV') ||
-          modelUpper.includes('TRUCK')
-        ) {
-          return year >= 2020 ? 22 : year >= 2010 ? 18 : 15
-        }
-
-        // Compact/Economy vehicles
-        if (
-          ['HONDA', 'TOYOTA', 'NISSAN', 'HYUNDAI'].includes(makeUpper) &&
-          (modelUpper.includes('CIVIC') ||
-            modelUpper.includes('COROLLA') ||
-            modelUpper.includes('SENTRA') ||
-            modelUpper.includes('ELANTRA'))
-        ) {
-          return year >= 2020 ? 32 : year >= 2010 ? 28 : 25
-        }
-
-        // General year-based improvements
-        if (year >= 2020) return 28
-        if (year >= 2015) return 26
-        if (year >= 2010) return 24
-        return 20
-      } catch (error) {
-        console.error('Error calculating fuel efficiency:', error)
-        return defaultMPG
-      }
-    }
-
     // Calculate values from user inputs
     const housing = userInput.housing || {}
     const transportation = userInput.transportation || {}
@@ -203,12 +57,12 @@ class Calculator {
 
     // Calculate energy consumption
     const electricityKWh = housing.monthlyElectricityBill
-      ? await calculateElectricityFromBill(housing.monthlyElectricityBill)
+      ? EnergyRates.calculateElectricityUsage(housing.monthlyElectricityBill)
       : 0
 
     const naturalGasTerms =
       housing.usesNaturalGas && housing.monthlyNaturalGasBill
-        ? await calculateNaturalGasFromBill(housing.monthlyNaturalGasBill)
+        ? EnergyRates.calculateNaturalGasUsage(housing.monthlyNaturalGasBill)
         : 0
 
     const heatingOilGallons = housing.usesHeatingOil
@@ -217,12 +71,15 @@ class Calculator {
 
     // Calculate transportation
     const car = transportation.car || {}
-    const commuteMiles = (car.commuteMilesOneWay || 0) * 2 * (car.commuteDaysPerWeek || 0) * 52
-    const errandsMiles = mapErrandsMiles(car.weeklyErrandsMilesRange || '25-50') * 52
+    const commuteMiles =
+      (car.commuteMilesOneWay || 0) * 2 * (car.commuteDaysPerWeek || 0) * VehicleData.WORK_WEEKS_PER_YEAR
+    const errandsMiles = VehicleData.calculateErrandsMileage(car.weeklyErrandsMilesRange || '25-50')
     const totalMilesDriven = commuteMiles + errandsMiles
 
     const fuelEfficiency =
-      car.make && car.model && car.year ? await getCarFuelEfficiency(car.make, car.model, car.year) : 25
+      car.make && car.model && car.year
+        ? VehicleData.estimateFuelEfficiency(car.make, car.model, car.year)
+        : VehicleData.DEFAULT_MPG
 
     const publicTransit = transportation.publicTransit || {}
     const annualBusMiles = (publicTransit.weeklyBusMiles || 0) * 52
@@ -257,12 +114,12 @@ class Calculator {
         },
       },
       food: {
-        dietType: mapDietDescription(food.dietDescription || ''),
+        dietType: InputMappings.mapDietDescription(food.dietDescription || ''),
         wasteLevel: 'average', // Default - could be asked in future
       },
       consumption: {
-        shoppingHabits: mapShoppingFrequency(consumption.shoppingFrequencyDescription || ''),
-        recyclingHabits: mapRecyclingHabits(consumption.recycledMaterials || []),
+        shoppingHabits: InputMappings.mapShoppingFrequency(consumption.shoppingFrequencyDescription || ''),
+        recyclingHabits: InputMappings.mapRecyclingHabits(consumption.recycledMaterials || []),
       },
     }
   }
@@ -278,55 +135,43 @@ class Calculator {
 
   private calculateHousingEmissions(data: HousingData): number {
     const { energy } = data
-    const electricityEmissions = energy.electricity * 0.42 // kg CO2 per kWh
-    const naturalGasEmissions = energy.naturalGas * 5.3 // kg CO2 per therm
-    const heatingOilEmissions = energy.heatingOil * 10.15 // kg CO2 per gallon
+    const electricityEmissions = energy.electricity * EmissionFactors.ELECTRICITY_KG_CO2_PER_KWH
+    const naturalGasEmissions = energy.naturalGas * EmissionFactors.NATURAL_GAS_KG_CO2_PER_THERM
+    const heatingOilEmissions = energy.heatingOil * EmissionFactors.HEATING_OIL_KG_CO2_PER_GALLON
     return electricityEmissions + naturalGasEmissions + heatingOilEmissions
   }
 
   private calculateTransportationEmissions(data: TransportationData): number {
     const { car, publicTransit, flights } = data
-    const carEmissions = (car.milesDriven / car.fuelEfficiency) * 8.89 // kg CO2 per gallon of gasoline
-    const busEmissions = publicTransit.busMiles * 0.059 // kg CO2 per mile
-    const trainEmissions = publicTransit.trainMiles * 0.041 // kg CO2 per mile
-    const shortHaulFlightEmissions = flights.shortHaul * 1100 // kg CO2 per flight (assuming average 1500 km flight)
-    const longHaulFlightEmissions = flights.longHaul * 4400 // kg CO2 per flight (assuming average 6000 km flight)
+    const carEmissions = (car.milesDriven / car.fuelEfficiency) * EmissionFactors.GASOLINE_KG_CO2_PER_GALLON
+    const busEmissions = publicTransit.busMiles * EmissionFactors.BUS_KG_CO2_PER_MILE
+    const trainEmissions = publicTransit.trainMiles * EmissionFactors.TRAIN_KG_CO2_PER_MILE
+    const shortHaulFlightEmissions = flights.shortHaul * EmissionFactors.SHORT_HAUL_FLIGHT_KG_CO2
+    const longHaulFlightEmissions = flights.longHaul * EmissionFactors.LONG_HAUL_FLIGHT_KG_CO2
     return carEmissions + busEmissions + trainEmissions + shortHaulFlightEmissions + longHaulFlightEmissions
   }
 
   private calculateFoodEmissions(data: FoodData): number {
-    const dietFactors = {
-      'meat-heavy': 3.3,
-      average: 2.5,
-      vegetarian: 1.7,
-      vegan: 1.5,
-    }
-    const wasteFactors = {
-      low: 0.9,
-      average: 1.0,
-      high: 1.1,
-    }
-    const baseFoodEmissions = 365 * (dietFactors[data.dietType as keyof typeof dietFactors] || 2.5)
-    return baseFoodEmissions * (wasteFactors[data.wasteLevel as keyof typeof wasteFactors] || 1.0)
+    const baseFoodEmissions =
+      EmissionFactors.DAYS_PER_YEAR *
+      (EmissionFactors.DIET_EMISSION_FACTORS[data.dietType as keyof typeof EmissionFactors.DIET_EMISSION_FACTORS] ||
+        EmissionFactors.DIET_EMISSION_FACTORS.average)
+    return (
+      baseFoodEmissions *
+      (EmissionFactors.WASTE_LEVEL_FACTORS[data.wasteLevel as keyof typeof EmissionFactors.WASTE_LEVEL_FACTORS] ||
+        EmissionFactors.WASTE_LEVEL_FACTORS.average)
+    )
   }
 
   private calculateConsumptionEmissions(data: ConsumptionData): number {
-    const shoppingFactors = {
-      minimal: 0.5,
-      average: 1.0,
-      frequent: 1.5,
-    }
-    const recyclingFactors = {
-      none: 1.2,
-      some: 1.0,
-      most: 0.8,
-      all: 0.6,
-    }
-    const baseConsumptionEmissions = 1000 // Assume 1000 kg CO2 for average consumption
     return (
-      baseConsumptionEmissions *
-      (shoppingFactors[data.shoppingHabits as keyof typeof shoppingFactors] || 1.0) *
-      (recyclingFactors[data.recyclingHabits as keyof typeof recyclingFactors] || 1.0)
+      EmissionFactors.BASE_CONSUMPTION_EMISSIONS_KG_CO2 *
+      (EmissionFactors.SHOPPING_FREQUENCY_FACTORS[
+        data.shoppingHabits as keyof typeof EmissionFactors.SHOPPING_FREQUENCY_FACTORS
+      ] || EmissionFactors.SHOPPING_FREQUENCY_FACTORS.average) *
+      (EmissionFactors.RECYCLING_HABIT_FACTORS[
+        data.recyclingHabits as keyof typeof EmissionFactors.RECYCLING_HABIT_FACTORS
+      ] || EmissionFactors.RECYCLING_HABIT_FACTORS.some)
     )
   }
 
@@ -355,8 +200,8 @@ class Calculator {
       summary: {
         totalEmissions: carbonFootprint,
         comparisonToAverages: {
-          global: carbonFootprint / 4000,
-          us: carbonFootprint / 16000,
+          global: carbonFootprint / EmissionFactors.GLOBAL_AVERAGE_KG_CO2_YEAR,
+          us: carbonFootprint / EmissionFactors.US_AVERAGE_KG_CO2_YEAR,
         },
         topContributors: contributors.slice(0, 3),
       },
