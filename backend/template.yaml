@@ -86,7 +86,7 @@ Outputs:
   ApiGatewayEndpoint:
     Description: 'API Gateway endpoint URL for the application'
     Value:
-      Fn::Sub: 'https://${ApiGatewayApi}.execute-api.${AWS::Region}.amazonaws.com/dev'
+      Fn::Sub: 'https://${ApiGatewayApi}.execute-api.${AWS::Region}.amazonaws.com/prod'
     Export:
       Name:
         Fn::Sub: '${AWS::StackName}-ApiGatewayEndpoint'
