@@ -42,7 +42,9 @@ Resources:
       Cors:
         AllowMethods: "'POST, OPTIONS'"
         AllowHeaders: "'Content-Type, Authorization, X-Requested-With'"
-        AllowOrigin: "'https://ecoviz-frontend.vercel.app'"
+        AllowOrigin:
+          - "'https://ecoviz-frontend.vercel.app'"
+          - "'https://ecoviz.castrodavid.dev'"
         MaxAge: "'86400'"
 
   CalculateFunction:
