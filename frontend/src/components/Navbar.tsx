@@ -15,8 +15,6 @@ import { useDataPersistenceStore } from '@/stores/dataStore'
 const navItems = [
   { name: 'Home', path: '/' },
   { name: 'Calculator', path: '/calculator' },
-  { name: 'How It Works', path: '/how-it-works' },
-  { name: 'About Us', path: '/about' },
 ]
 
 const Navbar = () => {
