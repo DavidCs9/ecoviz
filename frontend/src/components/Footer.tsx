@@ -2,7 +2,7 @@ import { Leaf, Github, Linkedin } from 'lucide-react'
 
 const Footer = () => {
   return (
-    <footer className="text-white py-6 fixed bottom-0 w-full">
+    <footer className="text-white py-4 w-full mt-8">
       <div className="container mx-auto px-4">
         <div className="flex text-sm md:text-base flex-row justify-between items-center">
           <a href="/" className="flex items-center mb-4 md:mb-0">
@@ -22,7 +22,7 @@ const Footer = () => {
             </a>
           </div>
         </div>
-        <div className="mt-6 text-center text-sm opacity-75">
+        <div className="mt-4 text-center text-xs md:text-sm opacity-75">
           &copy; {new Date().getFullYear()} EcoViz. All rights reserved. Made with ❤️ by{' '}
           <a href="https://www.linkedin.com/in/davidcastrosiq/">David C</a>
         </div>

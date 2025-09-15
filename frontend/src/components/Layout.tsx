@@ -9,9 +9,9 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-400 to-blue-500 text-gray-100">
+    <div className="h-screen bg-gradient-to-br from-green-400 to-blue-500 text-gray-100 flex flex-col overflow-hidden">
       <Navbar />
-      <main className="flex items-center justify-center p-6 md:p-12">{children}</main>
+      <main className="flex-1 flex items-center justify-center p-4 md:p-6 overflow-y-auto">{children}</main>
       <Footer />
       <Toaster />
     </div>

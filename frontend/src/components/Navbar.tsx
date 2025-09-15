@@ -35,12 +35,12 @@ const Navbar = () => {
   }, [persistedData])
 
   return (
-    <nav className="sticky top-0 z-10 bg-gradient-to-br from-green-400 to-blue-500 w-full shadow-lg p-4">
+    <nav className="sticky top-0 z-10 bg-gradient-to-br from-green-400 to-blue-500 w-full shadow-lg p-3">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <Link to="/" className="flex-shrink-0 flex gap-2 items-center font-semibold text-xl">
-              <Leaf className="h-8 w-8 text-white" />
+            <Link to="/" className="flex-shrink-0 flex gap-2 items-center font-semibold text-lg md:text-xl">
+              <Leaf className="h-6 w-6 md:h-8 md:w-8 text-white" />
               EcoViz
             </Link>
           </div>

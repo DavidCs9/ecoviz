@@ -347,7 +347,7 @@ export function Calculator() {
       case 0:
         return (
           <>
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div>
                 <Label htmlFor="zipCode">What's your ZIP code?</Label>
                 <Input
@@ -449,7 +449,7 @@ export function Calculator() {
       case 1:
         return (
           <>
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div className="space-y-2">
                 <Label>What is your primary car?</Label>
                 <div className="grid grid-cols-3 gap-2">
@@ -607,7 +607,7 @@ export function Calculator() {
       case 2:
         return (
           <>
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div>
                 <Label>Which of these best describes your diet?</Label>
                 <RadioGroup onValueChange={handleSelectChange('dietDescription')} value={formData.dietDescription}>
@@ -635,7 +635,7 @@ export function Calculator() {
       case 3:
         return (
           <>
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div>
                 <Label>When it comes to buying new items (clothes, electronics, etc.), my style is...</Label>
                 <RadioGroup
@@ -700,11 +700,11 @@ export function Calculator() {
   }
 
   return (
-    <div className="w-full p-6">
-      <Card className="max-w-2xl mx-auto bg-gradient-to-br from-green-50 to-green-100 max-h-[80vh] overflow-y-auto">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-green-800">Carbon Footprint Calculator</CardTitle>
-          <CardDescription className="text-green-600">
+    <div className="w-full p-3 md:p-4">
+      <Card className="max-w-2xl mx-auto bg-gradient-to-br from-green-50 to-green-100 max-h-[85vh] overflow-y-auto">
+        <CardHeader className="space-y-1 py-4">
+          <CardTitle className="text-xl md:text-2xl font-bold text-green-800">Carbon Footprint Calculator</CardTitle>
+          <CardDescription className="text-green-600 text-sm md:text-base">
             {isLoading
               ? isFinalizingDetails
                 ? 'Finalizing details...'
@@ -712,13 +712,13 @@ export function Calculator() {
               : `Step ${currentStep + 1} of ${steps.length}: ${steps[currentStep]}`}
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="py-4">
           {isLoading ? (
             <div className="space-y-4">
               <Progress value={loadingProgress} className="w-full" />
-              <p className="text-center text-green-700">{currentFact}</p>
+              <p className="text-center text-green-700 text-sm md:text-base">{currentFact}</p>
               {isFinalizingDetails && (
-                <p className="text-center text-yellow-600">
+                <p className="text-center text-yellow-600 text-sm md:text-base">
                   We're taking a bit longer than usual to ensure accuracy. Thank you for your patience!
                 </p>
               )}
@@ -727,7 +727,7 @@ export function Calculator() {
             renderStep()
           )}
         </CardContent>
-        <CardFooter className="flex justify-between">
+        <CardFooter className="flex justify-between py-4">
           {isLoading ? (
             <Button disabled variant="outline" className="w-full">
               {isFinalizingDetails ? 'Finalizing...' : 'Calculating...'}
