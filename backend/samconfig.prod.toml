@@ -1,9 +1,10 @@
+# Production environment configuration for CI/CD
 # More information about the configuration file can be found here:
 # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-config.html
 version = 0.1
 
 [default.global.parameters]
-stack_name = "ecoviz-serverless-dev"
+stack_name = "ecoviz-serverless-prod"
 
 [default.build.parameters]
 cached = true
@@ -14,22 +15,13 @@ lint = true
 
 [default.deploy.parameters]
 capabilities = "CAPABILITY_IAM"
-confirm_changeset = true
+confirm_changeset = false
 resolve_s3 = true
-s3_prefix = "ecoviz-serverless-dev"
+s3_prefix = "ecoviz-serverless-prod"
 region = "us-west-1"
 image_repositories = []
-disable_rollback = true
-parameter_overrides = "Environment=dev"
+disable_rollback = false
+parameter_overrides = "Environment=prod"
 
 [default.package.parameters]
 resolve_s3 = true
-
-[default.sync.parameters]
-watch = true
-
-[default.local_start_api.parameters]
-warm_containers = "EAGER"
-
-[default.local_start_lambda.parameters]
-warm_containers = "EAGER"
