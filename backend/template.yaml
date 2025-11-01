@@ -5,7 +5,19 @@ Description: >
 
   Sample SAM Template for ecoviz-serverless
 
+Conditions:
+  IsProd: !Equals [!Ref Environment, prod]
+  IsDev: !Equals [!Ref Environment, dev]
+
 Parameters:
+  Environment:
+    Type: String
+    Description: Environment name (dev or prod)
+    Default: dev
+    AllowedValues:
+      - dev
+      - prod
+
   OpenAIAPIKey:
     Type: String
     Description: OpenAI API Key
@@ -27,24 +39,15 @@ Globals:
       LogFormat: JSON
 
 Resources:
-  # CloudWatch Log Group for Lambda function
-  CalculateFunctionLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Sub '/aws/lambda/${AWS::StackName}-CalculateFunction'
-      RetentionInDays: 14
-
   ApiGatewayApi:
     Type: AWS::Serverless::Api
     Properties:
-      StageName: prod
+      StageName: !Ref Environment
       TracingEnabled: True
       Cors:
         AllowMethods: "'POST, OPTIONS'"
         AllowHeaders: "'Content-Type, Authorization, X-Requested-With'"
-        AllowOrigin:
-          - "'https://ecoviz-frontend.vercel.app'"
-          - "'https://ecoviz.castrodavid.dev'"
+        AllowOrigin: "'*'"
         MaxAge: "'86400'"
 
   CalculateFunction:
@@ -96,10 +99,17 @@ Resources:
   # Outputs:
 
 Outputs:
+  Environment:
+    Description: 'Deployment environment'
+    Value: !Ref Environment
+    Export:
+      Name:
+        Fn::Sub: '${AWS::StackName}-Environment'
+
   ApiGatewayEndpoint:
     Description: 'API Gateway endpoint URL for the application'
     Value:
-      Fn::Sub: 'https://${ApiGatewayApi}.execute-api.${AWS::Region}.amazonaws.com/prod'
+      Fn::Sub: 'https://${ApiGatewayApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}'
     Export:
       Name:
         Fn::Sub: '${AWS::StackName}-ApiGatewayEndpoint'
