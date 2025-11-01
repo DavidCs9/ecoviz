@@ -1,8 +1,9 @@
 {
   "info": {
-    "_postman_id": "a8a0b6e8-c8e6-4a7a-8b0a-2e3e4e5e6e7e",
+    "_postman_id": "e148c037-9337-4fdc-8d4a-538d656a6f80",
     "name": "Ecoviz Backend",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "28362945"
   },
   "item": [
     {
