@@ -10,7 +10,6 @@ lerna-debug.log*
 .env
 .env.local
 .env.development.local
-.env.test.local
 .env.production.local
 
 # Build outputs
@@ -43,14 +42,6 @@ shared/build/
 .aws-sam/
 samconfig.toml.backup
 .deploy/
-
-# Testing
-coverage/
-.nyc_output/
-test-results/
-playwright-report/
-test-results.xml
-junit.xml
 
 # Logs
 logs/
@@ -138,9 +129,6 @@ Thumbs.db
 
 # Playwright
 .playwright-mcp/
-
-# Jest
-jest-coverage/
 
 # Tailwind CSS
 .tailwindcss-cache/

@@ -194,28 +194,6 @@ curl -X POST http://localhost:3000/send-mail \
   -d @events/mailer.json
 ```
 
-## Testing
-
-### Unit Tests
-
-Run tests for each function:
-
-```bash
-# Calculate function tests
-cd calculate
-npm install
-npm test
-
-# Mailer function tests
-cd ../mailer
-npm install
-npm test
-```
-
-### Integration Tests
-
-Use the test events in the `events/` folder to test the complete workflow.
-
 ## Monitoring and Logs
 
 ### View Lambda function logs

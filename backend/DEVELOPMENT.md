@@ -24,23 +24,8 @@ From the backend root directory, you can run:
 - `npm run lint:check` - Check linting without auto-fixing
 - `npm run format` - Format all files with Prettier
 - `npm run format:check` - Check formatting without making changes
-- `npm run test` - Run tests for all functions
 - `npm run build` - Build all functions
 - `npm run compile` - Compile TypeScript for all functions
-
-## Individual Function Scripts
-
-You can also run scripts for individual functions:
-
-```bash
-# From backend root
-npm run test --workspace=calculate
-npm run test --workspace=mailer
-
-# Or from within the function directory
-cd calculate
-npm run test
-```
 
 ## Configuration Files
 

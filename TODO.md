@@ -1,6 +1,8 @@
 - [x] fix frontend UI
 - [x] Improve calculate form so you cannot advance without filling required fields
 - [] Improve testing performance precommit hook
+- [] remove all old test with jest
+- [] Add backend unit tests with vitest
 - [] Add vitest to frontend
 - [] Add api-key
 - [] Migrate from vercel to s3

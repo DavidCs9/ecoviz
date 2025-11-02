@@ -28,7 +28,7 @@ EcoViz is a comprehensive platform for calculating, visualizing, and reducing yo
 - Node.js (v18+ for backend, v14+ for frontend)
 - npm
 - [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html) (for backend)
-- Docker (for local backend testing)
+- Docker (for local backend development)
 
 ### Backend Setup
 
