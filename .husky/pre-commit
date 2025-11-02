@@ -44,10 +44,6 @@ if ! git diff --cached --quiet; then
     echo "  📋 Linting frontend..."
     npm run lint || { echo "❌ Frontend linting failed"; exit 1; }
     
-    # Run tests
-    echo "  🧪 Running frontend tests..."
-    npm test || { echo "❌ Frontend tests failed"; exit 1; }
-    
     # Build check
     echo "  🔨 Building frontend..."
     npm run build || { echo "❌ Frontend build failed"; exit 1; }

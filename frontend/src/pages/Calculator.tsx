@@ -102,6 +102,60 @@ export function Calculator() {
     })
   }
 
+  // Validation function for each step
+  const isStepValid = (step: number): boolean => {
+    switch (step) {
+      case 0: {
+        // Housing - Required: zipCode, householdSize, monthlyElectricityBill
+        const hasBasicHousing =
+          formData.zipCode.trim() !== '' &&
+          formData.householdSize.trim() !== '' &&
+          formData.monthlyElectricityBill.trim() !== ''
+
+        // If natural gas is selected, require gas bill
+        const naturalGasValid =
+          !formData.usesNaturalGas || (formData.usesNaturalGas && formData.monthlyNaturalGasBill.trim() !== '')
+
+        // If heating oil is selected, require fills per year and tank size
+        const heatingOilValid =
+          !formData.usesHeatingOil ||
+          (formData.usesHeatingOil &&
+            formData.heatingOilFillsPerYear.trim() !== '' &&
+            formData.heatingOilTankSizeGallons.trim() !== '')
+
+        return hasBasicHousing && naturalGasValid && heatingOilValid
+      }
+
+      case 1: {
+        // Transportation - At least one transportation method should have data
+        const hasCar =
+          formData.carMake.trim() !== '' && formData.carModel.trim() !== '' && formData.carYear.trim() !== ''
+        const hasCommute = formData.commuteMilesOneWay.trim() !== '' && formData.commuteDaysPerWeek.trim() !== ''
+        const hasErrands = formData.weeklyErrandsMilesRange.trim() !== ''
+        const hasPublicTransit = formData.weeklyBusMiles.trim() !== '' || formData.weeklyTrainMiles.trim() !== ''
+        const hasFlights =
+          formData.flightsUnder3Hours.trim() !== '' ||
+          formData.flights3To6Hours.trim() !== '' ||
+          formData.flightsOver6Hours.trim() !== ''
+
+        return hasCar || hasCommute || hasErrands || hasPublicTransit || hasFlights
+      }
+
+      case 2: // Food
+        return formData.dietDescription.trim() !== ''
+
+      case 3: {
+        // Consumption
+        const hasShoppingFrequency = formData.shoppingFrequencyDescription.trim() !== ''
+        const hasRecycling = formData.recycledMaterials.length > 0
+        return hasShoppingFrequency && hasRecycling
+      }
+
+      default:
+        return true
+    }
+  }
+
   useEffect(() => {
     // Check if user has an ID in localStorage
     let userId = localStorage.getItem('ecoviz_user_id')
@@ -787,9 +841,11 @@ export function Calculator() {
                 Previous
               </Button>
               {currentStep < steps.length - 1 ? (
-                <Button onClick={handleNext}>Next</Button>
+                <Button onClick={handleNext} disabled={!isStepValid(currentStep)}>
+                  Next
+                </Button>
               ) : (
-                <Button onClick={handleSubmit} variant="default">
+                <Button onClick={handleSubmit} disabled={!isStepValid(currentStep)} variant="default">
                   Calculate
                 </Button>
               )}

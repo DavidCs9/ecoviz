@@ -1,7 +1,8 @@
 - [x] fix frontend UI
-- [] Improve calculate form so you cannot advance without filling required fields
+- [x] Improve calculate form so you cannot advance without filling required fields
 - [] Improve testing performance
 - [] Add api-key
 - [] Migrate from vercel to s3
 - [] Update github readme personal
+- [] break down calculator into smaller components
 - [x] Set up terminal oh my zsh
