@@ -57,14 +57,30 @@ npm run dev
 - Configure `.env` with: `VITE_API_URL`, `VITE_POSTHOG_API_KEY`, `VITE_SENTRY_DSN`
 - See [frontend/README.md](frontend/README.md) for full details
 
-### Frontend Deployment (Vercel)
+### Frontend Deployment (AWS S3 + CloudFront)
 
-The frontend is deployed using Vercel. To deploy:
+The frontend is deployed to AWS S3 with CloudFront CDN. To deploy:
 
-1.  **Install Vercel CLI:** `npm install -g vercel`
-2.  **Link Project:** Run `vercel` in the `frontend/` directory and link it to your Vercel account and a new or existing project.
-3.  **Deploy:** `vercel --prod` (for production deployment) or `vercel` (for preview deployments).
+**Automated Deployment (Recommended):**
 
-For continuous deployment with GitHub Actions, ensure you have configured the `VERCEL_TOKEN` as a GitHub secret in your repository settings.
+```bash
+cd frontend
+./scripts/deploy.sh dev   # Deploy to dev
+./scripts/deploy.sh prod  # Deploy to production
+```
+
+**Manual Deployment:**
+
+```bash
+cd frontend
+npm run build
+sam deploy --guided  # First time setup
+# Then sync to S3 and invalidate CloudFront (see DEPLOYMENT.md)
+```
+
+**CI/CD Pipeline:**
+
+- Push to `dev` branch → auto-deploys to dev environment
+- Push to `main` branch → auto-deploys to production environment
 
 ---

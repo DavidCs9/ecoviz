@@ -1,0 +1,25 @@
+version = 0.1
+
+[default]
+[default.global.parameters]
+stack_name = "ecoviz-frontend-dev"
+
+[default.deploy]
+[default.deploy.parameters]
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true
+resolve_s3 = true
+region = "us-west-1"
+parameter_overrides = "Environment=\"dev\""
+
+[prod]
+[prod.global.parameters]
+stack_name = "ecoviz-frontend-prod"
+
+[prod.deploy]
+[prod.deploy.parameters]
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true
+resolve_s3 = true
+region = "us-west-1"
+parameter_overrides = "Environment=\"prod\""
