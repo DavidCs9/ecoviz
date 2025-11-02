@@ -135,11 +135,11 @@ Resources:
           Bucket: !GetAtt LogsBucket.DomainName
           Prefix: !Sub "cloudfront/${Environment}/"
           IncludeCookies: false
-        Tags:
-          - Key: Environment
-            Value: !Ref Environment
-          - Key: Project
-            Value: EcoViz
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Project
+          Value: EcoViz
 
   # Security Headers Response Policy
   SecurityHeadersPolicy:
