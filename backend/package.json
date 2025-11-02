@@ -5,14 +5,16 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "lint": "eslint '**/*.ts' --quiet --fix",
-    "lint:check": "eslint '**/*.ts' --quiet",
-    "format": "prettier --write '**/*.{ts,js,json,md}'",
-    "format:check": "prettier --check '**/*.{ts,js,json,md}'",
-    "build": "npm run lint && npm run format && tsc",
+    "build": "tsc",
     "deploy": "npm run build && dotenv -e .env -- sam deploy --parameter-overrides ParameterKey=OpenAIAPIKey,ParameterValue=$OPENAI_API_KEY",
     "local:invoke": "sam local invoke CalculateFunction --event events/calculate.json",
-    "local:api": "sam local start-api --port 3001"
+    "local:api": "sam local start-api --port 3001",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "format": "biome format .",
+    "format:fix": "biome format --write .",
+    "check": "biome check .",
+    "check:fix": "biome check --write ."
   },
   "dependencies": {
     "@langchain/core": "^0.3.61",
@@ -22,16 +24,9 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@eslint/js": "^8.57.0",
     "@types/aws-lambda": "^8.10.92",
     "@types/node": "^20.5.7",
-    "@typescript-eslint/eslint-plugin": "^7.0.0",
-    "@typescript-eslint/parser": "^7.0.0",
     "dotenv-cli": "^8.0.0",
-    "eslint": "^8.57.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.1.0",
-    "prettier": "^3.2.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.8.3"
   },

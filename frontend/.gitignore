@@ -26,4 +26,15 @@ dist-ssr
 # Sentry Config File
 .env.sentry-build-plugin
 
+# Environment files (keep .example files)
 .env
+.env.development
+.env.production
+.env.local
+
+# SAM & CloudFormation
+.aws-sam/
+samconfig.toml.bak
+
+# Deployment artifacts
+packaged.yaml

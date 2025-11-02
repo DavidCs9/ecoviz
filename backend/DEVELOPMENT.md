@@ -20,18 +20,7 @@ This backend uses a centralized package management approach with npm workspaces 
 
 From the backend root directory, you can run:
 
-- `npm run lint` - Lint all TypeScript files and auto-fix issues
-- `npm run lint:check` - Check linting without auto-fixing
-- `npm run format` - Format all files with Prettier
-- `npm run format:check` - Check formatting without making changes
 - `npm run build` - Build all functions
-- `npm run compile` - Compile TypeScript for all functions
-
-## Configuration Files
-
-- `eslint.config.js` - Centralized ESLint flat configuration
-- `.prettierrc.js` - Centralized Prettier configuration
-- `.prettierignore` - Files to ignore for Prettier
 
 ## Adding New Functions
 
@@ -43,16 +32,4 @@ From the backend root directory, you can run:
 ## Benefits
 
 - **Centralized dependency management** - All dev dependencies in one place
-- **Consistent linting and formatting** - Same rules across all functions
-- **Reduced duplication** - No need to duplicate ESLint/Prettier configs
-- **Easier maintenance** - Update dependencies and configs in one place
-- **Modern ESLint setup** - Uses flat config format for better performance and configuration
-
-## ESLint Flat Config
-
-This project uses ESLint's new flat config format (`eslint.config.js`) which provides:
-
-- Better performance
-- More flexible configuration
-- Native ES module support
-- Simplified plugin and rule management
+- **Easier maintenance** - Update dependencies in one place

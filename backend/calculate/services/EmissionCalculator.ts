@@ -1,5 +1,11 @@
-import { CalculationData, HousingData, TransportationData, FoodData, ConsumptionData } from '../types'
-import { EmissionFactors } from '../config'
+import { EmissionFactors } from "../config";
+import type {
+  CalculationData,
+  ConsumptionData,
+  FoodData,
+  HousingData,
+  TransportationData,
+} from "../types";
 
 /**
  * Service responsible for calculating carbon emissions from structured data
@@ -12,12 +18,12 @@ export class EmissionCalculator {
    * @returns Total carbon emissions in kg CO2 equivalent per year
    */
   calculateTotal(data: CalculationData): number {
-    const housingEmissions = this.calculateHousingEmissions(data.housing)
-    const transportationEmissions = this.calculateTransportationEmissions(data.transportation)
-    const foodEmissions = this.calculateFoodEmissions(data.food)
-    const consumptionEmissions = this.calculateConsumptionEmissions(data.consumption)
+    const housingEmissions = this.calculateHousingEmissions(data.housing);
+    const transportationEmissions = this.calculateTransportationEmissions(data.transportation);
+    const foodEmissions = this.calculateFoodEmissions(data.food);
+    const consumptionEmissions = this.calculateConsumptionEmissions(data.consumption);
 
-    return housingEmissions + transportationEmissions + foodEmissions + consumptionEmissions
+    return housingEmissions + transportationEmissions + foodEmissions + consumptionEmissions;
   }
 
   /**
@@ -31,7 +37,7 @@ export class EmissionCalculator {
       transportation: this.calculateTransportationEmissions(data.transportation),
       food: this.calculateFoodEmissions(data.food),
       consumption: this.calculateConsumptionEmissions(data.consumption),
-    }
+    };
   }
 
   /**
@@ -40,11 +46,11 @@ export class EmissionCalculator {
    * @returns Housing emissions in kg CO2 equivalent per year
    */
   calculateHousingEmissions(data: HousingData): number {
-    const { energy } = data
-    const electricityEmissions = energy.electricity * EmissionFactors.ELECTRICITY_KG_CO2_PER_KWH
-    const naturalGasEmissions = energy.naturalGas * EmissionFactors.NATURAL_GAS_KG_CO2_PER_THERM
-    const heatingOilEmissions = energy.heatingOil * EmissionFactors.HEATING_OIL_KG_CO2_PER_GALLON
-    return electricityEmissions + naturalGasEmissions + heatingOilEmissions
+    const { energy } = data;
+    const electricityEmissions = energy.electricity * EmissionFactors.ELECTRICITY_KG_CO2_PER_KWH;
+    const naturalGasEmissions = energy.naturalGas * EmissionFactors.NATURAL_GAS_KG_CO2_PER_THERM;
+    const heatingOilEmissions = energy.heatingOil * EmissionFactors.HEATING_OIL_KG_CO2_PER_GALLON;
+    return electricityEmissions + naturalGasEmissions + heatingOilEmissions;
   }
 
   /**
@@ -53,13 +59,20 @@ export class EmissionCalculator {
    * @returns Transportation emissions in kg CO2 equivalent per year
    */
   calculateTransportationEmissions(data: TransportationData): number {
-    const { car, publicTransit, flights } = data
-    const carEmissions = (car.milesDriven / car.fuelEfficiency) * EmissionFactors.GASOLINE_KG_CO2_PER_GALLON
-    const busEmissions = publicTransit.busMiles * EmissionFactors.BUS_KG_CO2_PER_MILE
-    const trainEmissions = publicTransit.trainMiles * EmissionFactors.TRAIN_KG_CO2_PER_MILE
-    const shortHaulFlightEmissions = flights.shortHaul * EmissionFactors.SHORT_HAUL_FLIGHT_KG_CO2
-    const longHaulFlightEmissions = flights.longHaul * EmissionFactors.LONG_HAUL_FLIGHT_KG_CO2
-    return carEmissions + busEmissions + trainEmissions + shortHaulFlightEmissions + longHaulFlightEmissions
+    const { car, publicTransit, flights } = data;
+    const carEmissions =
+      (car.milesDriven / car.fuelEfficiency) * EmissionFactors.GASOLINE_KG_CO2_PER_GALLON;
+    const busEmissions = publicTransit.busMiles * EmissionFactors.BUS_KG_CO2_PER_MILE;
+    const trainEmissions = publicTransit.trainMiles * EmissionFactors.TRAIN_KG_CO2_PER_MILE;
+    const shortHaulFlightEmissions = flights.shortHaul * EmissionFactors.SHORT_HAUL_FLIGHT_KG_CO2;
+    const longHaulFlightEmissions = flights.longHaul * EmissionFactors.LONG_HAUL_FLIGHT_KG_CO2;
+    return (
+      carEmissions +
+      busEmissions +
+      trainEmissions +
+      shortHaulFlightEmissions +
+      longHaulFlightEmissions
+    );
   }
 
   /**
@@ -70,13 +83,15 @@ export class EmissionCalculator {
   calculateFoodEmissions(data: FoodData): number {
     const baseFoodEmissions =
       EmissionFactors.DAYS_PER_YEAR *
-      (EmissionFactors.DIET_EMISSION_FACTORS[data.dietType as keyof typeof EmissionFactors.DIET_EMISSION_FACTORS] ||
-        EmissionFactors.DIET_EMISSION_FACTORS.average)
+      (EmissionFactors.DIET_EMISSION_FACTORS[
+        data.dietType as keyof typeof EmissionFactors.DIET_EMISSION_FACTORS
+      ] || EmissionFactors.DIET_EMISSION_FACTORS.average);
     return (
       baseFoodEmissions *
-      (EmissionFactors.WASTE_LEVEL_FACTORS[data.wasteLevel as keyof typeof EmissionFactors.WASTE_LEVEL_FACTORS] ||
-        EmissionFactors.WASTE_LEVEL_FACTORS.average)
-    )
+      (EmissionFactors.WASTE_LEVEL_FACTORS[
+        data.wasteLevel as keyof typeof EmissionFactors.WASTE_LEVEL_FACTORS
+      ] || EmissionFactors.WASTE_LEVEL_FACTORS.average)
+    );
   }
 
   /**
@@ -93,6 +108,6 @@ export class EmissionCalculator {
       (EmissionFactors.RECYCLING_HABIT_FACTORS[
         data.recyclingHabits as keyof typeof EmissionFactors.RECYCLING_HABIT_FACTORS
       ] || EmissionFactors.RECYCLING_HABIT_FACTORS.some)
-    )
+    );
   }
 }

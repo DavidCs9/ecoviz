@@ -1,4 +1,4 @@
-import { Leaf, Github, Linkedin } from 'lucide-react'
+import { Github, Leaf, Linkedin } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -11,7 +11,10 @@ const Footer = () => {
           </a>
 
           <div className="flex space-x-4">
-            <a href="https://github.com/DavidCs9" className="hover:text-green-200 transition-colors duration-300">
+            <a
+              href="https://github.com/DavidCs9"
+              className="hover:text-green-200 transition-colors duration-300"
+            >
               <Github />
             </a>
             <a
@@ -23,12 +26,12 @@ const Footer = () => {
           </div>
         </div>
         <div className="mt-4 text-center text-xs md:text-sm opacity-75">
-          &copy; {new Date().getFullYear()} EcoViz. All rights reserved. Made with ❤️ by{' '}
+          &copy; {new Date().getFullYear()} EcoViz. All rights reserved. Made with ❤️ by{" "}
           <a href="https://www.linkedin.com/in/davidcastrosiq/">David C</a>
         </div>
       </div>
     </footer>
-  )
-}
+  );
+};
 
-export default Footer
+export default Footer;

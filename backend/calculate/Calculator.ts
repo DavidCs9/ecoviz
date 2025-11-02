@@ -1,20 +1,20 @@
-import { UserInput } from './types'
-import { EmissionFactors } from './config'
-import { InputTransformer, EmissionCalculator, AIAnalysisService } from './services'
+import { EmissionFactors } from "./config";
+import { AIAnalysisService, EmissionCalculator, InputTransformer } from "./services";
+import type { UserInput } from "./types";
 
 /**
  * Main calculator orchestrator that coordinates specialized services
  * Handles the overall calculation workflow and result assembly
  */
 class Calculator {
-  private inputTransformer: InputTransformer
-  private emissionCalculator: EmissionCalculator
-  private aiAnalysisService: AIAnalysisService
+  private inputTransformer: InputTransformer;
+  private emissionCalculator: EmissionCalculator;
+  private aiAnalysisService: AIAnalysisService;
 
   constructor() {
-    this.inputTransformer = new InputTransformer()
-    this.emissionCalculator = new EmissionCalculator()
-    this.aiAnalysisService = new AIAnalysisService()
+    this.inputTransformer = new InputTransformer();
+    this.emissionCalculator = new EmissionCalculator();
+    this.aiAnalysisService = new AIAnalysisService();
   }
 
   /**
@@ -25,21 +25,25 @@ class Calculator {
    */
   async calculateHandler(userId: string, userInput: UserInput) {
     // Step 1: Transform user input into structured calculation data
-    const data = await this.inputTransformer.transform(userInput)
+    const data = await this.inputTransformer.transform(userInput);
 
     // Step 2: Calculate carbon footprint
-    const carbonFootprint = this.emissionCalculator.calculateTotal(data)
-    const emissionsByCategory = this.emissionCalculator.calculateByCategory(data)
+    const carbonFootprint = this.emissionCalculator.calculateTotal(data);
+    const emissionsByCategory = this.emissionCalculator.calculateByCategory(data);
 
     // Step 3: Generate AI analysis
-    const aiAnalysis = await this.aiAnalysisService.generateAnalysis(carbonFootprint, data, emissionsByCategory)
+    const aiAnalysis = await this.aiAnalysisService.generateAnalysis(
+      carbonFootprint,
+      data,
+      emissionsByCategory
+    );
 
     // Step 4: Assemble final result
-    const calculationId = `${userId}-${Date.now()}`
+    const calculationId = `${userId}-${Date.now()}`;
     const averages = {
       global: EmissionFactors.GLOBAL_AVERAGE_KG_CO2_YEAR,
       us: EmissionFactors.US_AVERAGE_KG_CO2_YEAR,
-    }
+    };
 
     return {
       userId,
@@ -47,9 +51,9 @@ class Calculator {
       carbonFootprint,
       aiAnalysis,
       averages,
-      message: 'Carbon footprint calculation and AI analysis stored successfully',
-    }
+      message: "Carbon footprint calculation and AI analysis stored successfully",
+    };
   }
 }
 
-export default Calculator
+export default Calculator;

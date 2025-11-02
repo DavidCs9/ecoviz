@@ -1,106 +1,119 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Label } from '../components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
-import { Input } from '../components/ui/input'
-import { RadioGroup, RadioGroupItem } from '../components/ui/radio-group'
-import { Checkbox } from '../components/ui/checkbox'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/ui/card'
-import { Button } from '../components/ui/button'
-import { useToast } from '../hooks/use-toast'
-import { useDataPersistence } from '../stores/dataStore'
-import { Progress } from '../components/ui/progress'
-import { v4 as uuidv4 } from 'uuid'
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
+import { Button } from "../components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Checkbox } from "../components/ui/checkbox";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { Progress } from "../components/ui/progress";
+import { RadioGroup, RadioGroupItem } from "../components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import { useToast } from "../hooks/use-toast";
+import { useDataPersistence } from "../stores/dataStore";
 
-const API_URL = import.meta.env.VITE_API_URL
-const steps = ['Housing', 'Transportation', 'Food', 'Consumption']
+const API_URL = import.meta.env.VITE_API_URL;
+const steps = ["Housing", "Transportation", "Food", "Consumption"];
 
 const loadingFacts = [
-  'Did you know? A single tree can absorb up to 48 pounds of CO2 per year.',
-  'Fun fact: The average person generates about 4.5 tons of CO2 per year.',
-  'Tip: Reducing your meat consumption can significantly lower your carbon footprint.',
-  'Interesting: Renewable energy sources made up 26% of global electricity generation in 2018.',
-  'Fact: The transportation sector accounts for about 14% of global greenhouse gas emissions.',
-  'Did you know? LED lights use up to 90% less energy than traditional incandescent bulbs.',
-  'Tip: Using public transportation can significantly reduce your carbon footprint.',
-]
+  "Did you know? A single tree can absorb up to 48 pounds of CO2 per year.",
+  "Fun fact: The average person generates about 4.5 tons of CO2 per year.",
+  "Tip: Reducing your meat consumption can significantly lower your carbon footprint.",
+  "Interesting: Renewable energy sources made up 26% of global electricity generation in 2018.",
+  "Fact: The transportation sector accounts for about 14% of global greenhouse gas emissions.",
+  "Did you know? LED lights use up to 90% less energy than traditional incandescent bulbs.",
+  "Tip: Using public transportation can significantly reduce your carbon footprint.",
+];
 
 export function Calculator() {
-  const { toast } = useToast()
-  const navigate = useNavigate()
-  const { validateAndSaveData } = useDataPersistence()
-  const [currentStep, setCurrentStep] = useState(0)
-  const [isLoading, setIsLoading] = useState(false)
-  const [loadingProgress, setLoadingProgress] = useState(0)
-  const [currentFact, setCurrentFact] = useState('')
-  const [isFinalizingDetails, setIsFinalizingDetails] = useState<boolean>(false)
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const { validateAndSaveData } = useDataPersistence();
+  const [currentStep, setCurrentStep] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [currentFact, setCurrentFact] = useState("");
+  const [isFinalizingDetails, setIsFinalizingDetails] = useState<boolean>(false);
   const [formData, setFormData] = useState({
     // Location
-    zipCode: '',
+    zipCode: "",
 
     // Housing & Energy
-    housingType: '',
-    householdSize: '',
-    monthlyElectricityBill: '',
+    housingType: "",
+    householdSize: "",
+    monthlyElectricityBill: "",
     usesNaturalGas: false,
-    monthlyNaturalGasBill: '',
+    monthlyNaturalGasBill: "",
     usesHeatingOil: false,
-    heatingOilFillsPerYear: '',
-    heatingOilTankSizeGallons: '',
+    heatingOilFillsPerYear: "",
+    heatingOilTankSizeGallons: "",
 
     // Transportation
-    carMake: '',
-    carModel: '',
-    carYear: '',
-    commuteMilesOneWay: '',
-    commuteDaysPerWeek: '',
-    weeklyErrandsMilesRange: '',
-    weeklyBusMiles: '',
-    weeklyTrainMiles: '',
-    flightsUnder3Hours: '',
-    flights3To6Hours: '',
-    flightsOver6Hours: '',
+    carMake: "",
+    carModel: "",
+    carYear: "",
+    commuteMilesOneWay: "",
+    commuteDaysPerWeek: "",
+    weeklyErrandsMilesRange: "",
+    weeklyBusMiles: "",
+    weeklyTrainMiles: "",
+    flightsUnder3Hours: "",
+    flights3To6Hours: "",
+    flightsOver6Hours: "",
 
     // Food
-    dietDescription: '',
+    dietDescription: "",
 
     // Consumption
-    shoppingFrequencyDescription: '',
+    shoppingFrequencyDescription: "",
     recycledMaterials: [] as string[],
-  })
+  });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData(prevData => ({ ...prevData, [name]: value }))
+    const { name, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
     // Track when user inputs data
-  }
+  };
 
   const handleSelectChange = (name: string) => (value: string) => {
-    setFormData(prevData => ({ ...prevData, [name]: value }))
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
     // Track when user selects an option
-  }
+  };
 
   const handleCheckboxChange = (name: string) => (checked: boolean) => {
-    setFormData(prevData => ({ ...prevData, [name]: checked }))
-  }
+    setFormData((prevData) => ({ ...prevData, [name]: checked }));
+  };
 
   // Removed unused handleMultiSelectChange function
 
   const handleNext = () => {
-    setCurrentStep(prevStep => {
-      const nextStep = prevStep + 1
+    setCurrentStep((prevStep) => {
+      const nextStep = prevStep + 1;
       // Track when user moves to next step
-      return nextStep
-    })
-  }
+      return nextStep;
+    });
+  };
 
   const handlePrevious = () => {
-    setCurrentStep(prevStep => {
-      const nextStep = prevStep - 1
+    setCurrentStep((prevStep) => {
+      const nextStep = prevStep - 1;
       // Track when user moves to previous step
-      return nextStep
-    })
-  }
+      return nextStep;
+    });
+  };
 
   // Validation function for each step
   const isStepValid = (step: number): boolean => {
@@ -108,168 +121,175 @@ export function Calculator() {
       case 0: {
         // Housing - Required: zipCode, householdSize, monthlyElectricityBill
         const hasBasicHousing =
-          formData.zipCode.trim() !== '' &&
-          formData.householdSize.trim() !== '' &&
-          formData.monthlyElectricityBill.trim() !== ''
+          formData.zipCode.trim() !== "" &&
+          formData.householdSize.trim() !== "" &&
+          formData.monthlyElectricityBill.trim() !== "";
 
         // If natural gas is selected, require gas bill
         const naturalGasValid =
-          !formData.usesNaturalGas || (formData.usesNaturalGas && formData.monthlyNaturalGasBill.trim() !== '')
+          !formData.usesNaturalGas ||
+          (formData.usesNaturalGas && formData.monthlyNaturalGasBill.trim() !== "");
 
         // If heating oil is selected, require fills per year and tank size
         const heatingOilValid =
           !formData.usesHeatingOil ||
           (formData.usesHeatingOil &&
-            formData.heatingOilFillsPerYear.trim() !== '' &&
-            formData.heatingOilTankSizeGallons.trim() !== '')
+            formData.heatingOilFillsPerYear.trim() !== "" &&
+            formData.heatingOilTankSizeGallons.trim() !== "");
 
-        return hasBasicHousing && naturalGasValid && heatingOilValid
+        return hasBasicHousing && naturalGasValid && heatingOilValid;
       }
 
       case 1: {
         // Transportation - At least one transportation method should have data
         const hasCar =
-          formData.carMake.trim() !== '' && formData.carModel.trim() !== '' && formData.carYear.trim() !== ''
-        const hasCommute = formData.commuteMilesOneWay.trim() !== '' && formData.commuteDaysPerWeek.trim() !== ''
-        const hasErrands = formData.weeklyErrandsMilesRange.trim() !== ''
-        const hasPublicTransit = formData.weeklyBusMiles.trim() !== '' || formData.weeklyTrainMiles.trim() !== ''
+          formData.carMake.trim() !== "" &&
+          formData.carModel.trim() !== "" &&
+          formData.carYear.trim() !== "";
+        const hasCommute =
+          formData.commuteMilesOneWay.trim() !== "" && formData.commuteDaysPerWeek.trim() !== "";
+        const hasErrands = formData.weeklyErrandsMilesRange.trim() !== "";
+        const hasPublicTransit =
+          formData.weeklyBusMiles.trim() !== "" || formData.weeklyTrainMiles.trim() !== "";
         const hasFlights =
-          formData.flightsUnder3Hours.trim() !== '' ||
-          formData.flights3To6Hours.trim() !== '' ||
-          formData.flightsOver6Hours.trim() !== ''
+          formData.flightsUnder3Hours.trim() !== "" ||
+          formData.flights3To6Hours.trim() !== "" ||
+          formData.flightsOver6Hours.trim() !== "";
 
-        return hasCar || hasCommute || hasErrands || hasPublicTransit || hasFlights
+        return hasCar || hasCommute || hasErrands || hasPublicTransit || hasFlights;
       }
 
       case 2: // Food
-        return formData.dietDescription.trim() !== ''
+        return formData.dietDescription.trim() !== "";
 
       case 3: {
         // Consumption
-        const hasShoppingFrequency = formData.shoppingFrequencyDescription.trim() !== ''
-        const hasRecycling = formData.recycledMaterials.length > 0
-        return hasShoppingFrequency && hasRecycling
+        const hasShoppingFrequency = formData.shoppingFrequencyDescription.trim() !== "";
+        const hasRecycling = formData.recycledMaterials.length > 0;
+        return hasShoppingFrequency && hasRecycling;
       }
 
       default:
-        return true
+        return true;
     }
-  }
+  };
 
   useEffect(() => {
     // Check if user has an ID in localStorage
-    let userId = localStorage.getItem('ecoviz_user_id')
+    let userId = localStorage.getItem("ecoviz_user_id");
     // If not, generate a new UUID and store it
     if (!userId) {
-      userId = uuidv4()
-      localStorage.setItem('ecoviz_user_id', userId)
+      userId = uuidv4();
+      localStorage.setItem("ecoviz_user_id", userId);
     }
 
-    let progressInterval: NodeJS.Timeout | undefined
-    let factInterval: NodeJS.Timeout | undefined
+    let progressInterval: NodeJS.Timeout | undefined;
+    let factInterval: NodeJS.Timeout | undefined;
 
     if (isLoading) {
-      setCurrentFact(loadingFacts[Math.floor(Math.random() * loadingFacts.length)])
+      setCurrentFact(loadingFacts[Math.floor(Math.random() * loadingFacts.length)]);
 
       progressInterval = setInterval(() => {
-        setLoadingProgress(oldProgress => {
+        setLoadingProgress((oldProgress) => {
           if (oldProgress >= 100) {
-            clearInterval(progressInterval)
-            setIsFinalizingDetails(true)
-            return 100
+            clearInterval(progressInterval);
+            setIsFinalizingDetails(true);
+            return 100;
           }
-          return oldProgress + 0.5 // Increases by 0.5% every 100ms
-        })
-      }, 100)
+          return oldProgress + 0.5; // Increases by 0.5% every 100ms
+        });
+      }, 100);
 
       // Change fact every 5 seconds
       factInterval = setInterval(() => {
-        setCurrentFact(loadingFacts[Math.floor(Math.random() * loadingFacts.length)])
-      }, 5000)
+        setCurrentFact(loadingFacts[Math.floor(Math.random() * loadingFacts.length)]);
+      }, 5000);
     }
 
     return () => {
-      if (progressInterval) clearInterval(progressInterval)
-      if (factInterval) clearInterval(factInterval)
-    }
-  }, [isLoading])
+      if (progressInterval) clearInterval(progressInterval);
+      if (factInterval) clearInterval(factInterval);
+    };
+  }, [isLoading]);
 
   const transformUserInputToBackendFormat = () => {
     // Map user-friendly inputs to backend format
     const mapDietDescription = (description: string) => {
       switch (description) {
-        case 'Meat in most meals':
-          return 'meat-heavy'
-        case 'Meat a few times a week':
-          return 'average'
-        case 'Vegetarian (no meat)':
-          return 'vegetarian'
-        case 'Vegan (no animal products)':
-          return 'vegan'
+        case "Meat in most meals":
+          return "meat-heavy";
+        case "Meat a few times a week":
+          return "average";
+        case "Vegetarian (no meat)":
+          return "vegetarian";
+        case "Vegan (no animal products)":
+          return "vegan";
         default:
-          return 'average'
+          return "average";
       }
-    }
+    };
 
     const mapShoppingFrequency = (description: string) => {
       switch (description) {
-        case 'I buy new things frequently.':
-          return 'frequent'
-        case 'I buy new things every now and then.':
-          return 'average'
-        case 'I rarely buy new things and prefer second-hand.':
-          return 'minimal'
+        case "I buy new things frequently.":
+          return "frequent";
+        case "I buy new things every now and then.":
+          return "average";
+        case "I rarely buy new things and prefer second-hand.":
+          return "minimal";
         default:
-          return 'average'
+          return "average";
       }
-    }
+    };
 
     const mapRecyclingHabits = (materials: string[]) => {
-      if (materials.includes('None of these')) {
-        return 'none'
+      if (materials.includes("None of these")) {
+        return "none";
       }
       if (materials.length >= 3) {
-        return 'all'
+        return "all";
       }
       if (materials.length >= 1) {
-        return 'some'
+        return "some";
       }
-      return 'none'
-    }
+      return "none";
+    };
 
     const mapErrandsMiles = (range: string) => {
       switch (range) {
-        case '0-25':
-          return 12.5
-        case '25-50':
-          return 37.5
-        case '50-100':
-          return 75
-        case '100+':
-          return 125
+        case "0-25":
+          return 12.5;
+        case "25-50":
+          return 37.5;
+        case "50-100":
+          return 75;
+        case "100+":
+          return 125;
         default:
-          return 37.5
+          return 37.5;
       }
-    }
+    };
 
     // Calculate annual values from user inputs
-    const commuteMiles = parseFloat(formData.commuteMilesOneWay) * 2 * parseFloat(formData.commuteDaysPerWeek) * 52
-    const errandsMiles = mapErrandsMiles(formData.weeklyErrandsMilesRange) * 52
-    const totalMilesDriven = commuteMiles + errandsMiles
+    const commuteMiles =
+      parseFloat(formData.commuteMilesOneWay) * 2 * parseFloat(formData.commuteDaysPerWeek) * 52;
+    const errandsMiles = mapErrandsMiles(formData.weeklyErrandsMilesRange) * 52;
+    const totalMilesDriven = commuteMiles + errandsMiles;
 
-    const annualBusMiles = parseFloat(formData.weeklyBusMiles) * 52
-    const annualTrainMiles = parseFloat(formData.weeklyTrainMiles) * 52
+    const annualBusMiles = parseFloat(formData.weeklyBusMiles) * 52;
+    const annualTrainMiles = parseFloat(formData.weeklyTrainMiles) * 52;
 
-    const shortHaulFlights = parseInt(formData.flightsUnder3Hours)
-    const longHaulFlights = parseInt(formData.flights3To6Hours) + parseInt(formData.flightsOver6Hours)
+    const shortHaulFlights = parseInt(formData.flightsUnder3Hours);
+    const longHaulFlights =
+      parseInt(formData.flights3To6Hours) + parseInt(formData.flightsOver6Hours);
 
     const annualHeatingOil = formData.usesHeatingOil
       ? parseFloat(formData.heatingOilFillsPerYear) * parseFloat(formData.heatingOilTankSizeGallons)
-      : 0
+      : 0;
 
     return {
       housing: {
-        type: formData.housingType || 'apartment',
+        type: formData.housingType || "apartment",
         size: parseInt(formData.householdSize) || 1,
         energy: {
           electricity: (parseFloat(formData.monthlyElectricityBill) * 12) / 0.12 || 0, // Assuming $0.12/kWh average
@@ -295,21 +315,21 @@ export function Calculator() {
       },
       food: {
         dietType: mapDietDescription(formData.dietDescription),
-        wasteLevel: 'average', // Default for now
+        wasteLevel: "average", // Default for now
       },
       consumption: {
         shoppingHabits: mapShoppingFrequency(formData.shoppingFrequencyDescription),
         recyclingHabits: mapRecyclingHabits(formData.recycledMaterials),
       },
-    }
-  }
+    };
+  };
 
   const handleSubmit = async () => {
-    setIsLoading(true)
-    setLoadingProgress(0)
+    setIsLoading(true);
+    setLoadingProgress(0);
 
     try {
-      const userId = localStorage.getItem('ecoviz_user_id')
+      const userId = localStorage.getItem("ecoviz_user_id");
 
       // Create user-friendly input payload
       const userInputPayload = {
@@ -329,7 +349,7 @@ export function Calculator() {
             year: parseInt(formData.carYear) || 2020,
             commuteMilesOneWay: parseFloat(formData.commuteMilesOneWay) || 0,
             commuteDaysPerWeek: parseFloat(formData.commuteDaysPerWeek) || 0,
-            weeklyErrandsMilesRange: formData.weeklyErrandsMilesRange || '25-50',
+            weeklyErrandsMilesRange: formData.weeklyErrandsMilesRange || "25-50",
           },
           publicTransit: {
             weeklyBusMiles: parseFloat(formData.weeklyBusMiles) || 0,
@@ -348,53 +368,53 @@ export function Calculator() {
           shoppingFrequencyDescription: formData.shoppingFrequencyDescription,
           recycledMaterials: formData.recycledMaterials,
         },
-      }
+      };
 
       const requestPayload = {
         userId: userId,
         userInput: userInputPayload,
-      }
+      };
 
       const response = await fetch(`${API_URL}/calculate`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(requestPayload),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error('Network response was not ok')
+        throw new Error("Network response was not ok");
       }
 
-      const result = await response.json()
+      const result = await response.json();
 
       const resultsData = {
         carbonFootprint: result.carbonFootprint,
         calculationData: transformUserInputToBackendFormat(), // For display purposes
         aiAnalysis: result.aiAnalysis,
         averages: result.averages,
-      }
+      };
 
       // Save using Zustand store with Zod validation
-      const saveResult = validateAndSaveData(resultsData)
+      const saveResult = validateAndSaveData(resultsData);
       if (!saveResult.success) {
-        throw new Error(`Data validation failed: ${saveResult.error}`)
+        throw new Error(`Data validation failed: ${saveResult.error}`);
       }
 
-      navigate('/results')
+      navigate("/results");
     } catch (error) {
-      console.error('Error:', error)
+      console.error("Error:", error);
       toast({
-        title: 'Calculation Failed',
-        description: 'Failed to calculate carbon footprint. Please try again.',
-        variant: 'destructive',
-      })
+        title: "Calculation Failed",
+        description: "Failed to calculate carbon footprint. Please try again.",
+        variant: "destructive",
+      });
     } finally {
-      setIsLoading(false)
-      setLoadingProgress(0)
+      setIsLoading(false);
+      setLoadingProgress(0);
     }
-  }
+  };
 
   const renderStep = () => {
     switch (currentStep) {
@@ -415,7 +435,9 @@ export function Calculator() {
                   placeholder="e.g., 90210"
                   className="text-sm md:text-base"
                 />
-                <p className="text-xs md:text-sm text-gray-500 mt-1">We use this to estimate local energy costs</p>
+                <p className="text-xs md:text-sm text-gray-500 mt-1">
+                  We use this to estimate local energy costs
+                </p>
               </div>
               <div>
                 <Label htmlFor="householdSize" className="text-sm md:text-base">
@@ -444,20 +466,24 @@ export function Calculator() {
                   placeholder="e.g., 150"
                   className="text-sm md:text-base"
                 />
-                <p className="text-xs md:text-sm text-gray-500 mt-1">Enter the dollar amount (without $ sign)</p>
+                <p className="text-xs md:text-sm text-gray-500 mt-1">
+                  Enter the dollar amount (without $ sign)
+                </p>
               </div>
               <div>
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="usesNaturalGas"
                     checked={formData.usesNaturalGas}
-                    onCheckedChange={handleCheckboxChange('usesNaturalGas')}
+                    onCheckedChange={handleCheckboxChange("usesNaturalGas")}
                   />
                   <Label htmlFor="usesNaturalGas">I use natural gas</Label>
                 </div>
                 {formData.usesNaturalGas && (
                   <div className="mt-2">
-                    <Label htmlFor="monthlyNaturalGasBill">What's your average monthly natural gas bill?</Label>
+                    <Label htmlFor="monthlyNaturalGasBill">
+                      What's your average monthly natural gas bill?
+                    </Label>
                     <Input
                       type="number"
                       id="monthlyNaturalGasBill"
@@ -466,7 +492,9 @@ export function Calculator() {
                       onChange={handleInputChange}
                       placeholder="e.g., 40"
                     />
-                    <p className="text-sm text-gray-500 mt-1">Enter the dollar amount (without $ sign)</p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Enter the dollar amount (without $ sign)
+                    </p>
                   </div>
                 )}
               </div>
@@ -475,14 +503,16 @@ export function Calculator() {
                   <Checkbox
                     id="usesHeatingOil"
                     checked={formData.usesHeatingOil}
-                    onCheckedChange={handleCheckboxChange('usesHeatingOil')}
+                    onCheckedChange={handleCheckboxChange("usesHeatingOil")}
                   />
                   <Label htmlFor="usesHeatingOil">I use heating oil</Label>
                 </div>
                 {formData.usesHeatingOil && (
                   <div className="mt-2 space-y-2">
                     <div>
-                      <Label htmlFor="heatingOilFillsPerYear">How many times per year do you fill your tank?</Label>
+                      <Label htmlFor="heatingOilFillsPerYear">
+                        How many times per year do you fill your tank?
+                      </Label>
                       <Input
                         type="number"
                         id="heatingOilFillsPerYear"
@@ -493,7 +523,9 @@ export function Calculator() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="heatingOilTankSizeGallons">What's your tank size (gallons)?</Label>
+                      <Label htmlFor="heatingOilTankSizeGallons">
+                        What's your tank size (gallons)?
+                      </Label>
                       <Input
                         type="number"
                         id="heatingOilTankSizeGallons"
@@ -508,7 +540,7 @@ export function Calculator() {
               </div>
             </div>
           </>
-        )
+        );
       case 1:
         return (
           <>
@@ -578,7 +610,10 @@ export function Calculator() {
                 <Label htmlFor="commuteDaysPerWeek" className="text-sm md:text-base">
                   How many days per week do you commute?
                 </Label>
-                <Select onValueChange={handleSelectChange('commuteDaysPerWeek')} value={formData.commuteDaysPerWeek}>
+                <Select
+                  onValueChange={handleSelectChange("commuteDaysPerWeek")}
+                  value={formData.commuteDaysPerWeek}
+                >
                   <SelectTrigger className="text-sm md:text-base">
                     <SelectValue placeholder="Select days per week" />
                   </SelectTrigger>
@@ -596,10 +631,11 @@ export function Calculator() {
               </div>
               <div>
                 <Label className="text-sm md:text-base">
-                  Excluding commute, how many miles do you drive per week for errands, leisure, etc.?
+                  Excluding commute, how many miles do you drive per week for errands, leisure,
+                  etc.?
                 </Label>
                 <RadioGroup
-                  onValueChange={handleSelectChange('weeklyErrandsMilesRange')}
+                  onValueChange={handleSelectChange("weeklyErrandsMilesRange")}
                   value={formData.weeklyErrandsMilesRange}
                   className="space-y-1"
                 >
@@ -658,7 +694,9 @@ export function Calculator() {
                 />
               </div>
               <div>
-                <Label className="text-sm md:text-base">In the past year, how many flights did you take?</Label>
+                <Label className="text-sm md:text-base">
+                  In the past year, how many flights did you take?
+                </Label>
                 <div className="space-y-1 md:space-y-2 mt-1">
                   <div>
                     <Label htmlFor="flightsUnder3Hours" className="text-xs md:text-sm">
@@ -706,14 +744,17 @@ export function Calculator() {
               </div>
             </div>
           </>
-        )
+        );
       case 2:
         return (
           <>
             <div className="space-y-3">
               <div>
                 <Label>Which of these best describes your diet?</Label>
-                <RadioGroup onValueChange={handleSelectChange('dietDescription')} value={formData.dietDescription}>
+                <RadioGroup
+                  onValueChange={handleSelectChange("dietDescription")}
+                  value={formData.dietDescription}
+                >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="Meat in most meals" id="meat-most" />
                     <Label htmlFor="meat-most">Meat in most meals</Label>
@@ -734,15 +775,17 @@ export function Calculator() {
               </div>
             </div>
           </>
-        )
+        );
       case 3:
         return (
           <>
             <div className="space-y-3">
               <div>
-                <Label>When it comes to buying new items (clothes, electronics, etc.), my style is...</Label>
+                <Label>
+                  When it comes to buying new items (clothes, electronics, etc.), my style is...
+                </Label>
                 <RadioGroup
-                  onValueChange={handleSelectChange('shoppingFrequencyDescription')}
+                  onValueChange={handleSelectChange("shoppingFrequencyDescription")}
                   value={formData.shoppingFrequencyDescription}
                 >
                   <div className="flex items-center space-x-2">
@@ -750,12 +793,20 @@ export function Calculator() {
                     <Label htmlFor="shop-frequent">I buy new things frequently.</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="I buy new things every now and then." id="shop-moderate" />
+                    <RadioGroupItem
+                      value="I buy new things every now and then."
+                      id="shop-moderate"
+                    />
                     <Label htmlFor="shop-moderate">I buy new things every now and then.</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="I rarely buy new things and prefer second-hand." id="shop-minimal" />
-                    <Label htmlFor="shop-minimal">I rarely buy new things and prefer second-hand.</Label>
+                    <RadioGroupItem
+                      value="I rarely buy new things and prefer second-hand."
+                      id="shop-minimal"
+                    />
+                    <Label htmlFor="shop-minimal">
+                      I rarely buy new things and prefer second-hand.
+                    </Label>
                   </div>
                 </RadioGroup>
               </div>
@@ -763,55 +814,66 @@ export function Calculator() {
                 <Label>Which materials do you consistently recycle?</Label>
                 <p className="text-sm text-gray-500 mb-2">Select all that apply</p>
                 <div className="space-y-2">
-                  {['Paper & Cardboard', 'Plastics', 'Glass', 'Aluminum & Steel Cans', 'None of these'].map(
-                    material => (
-                      <div key={material} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`recycle-${material}`}
-                          checked={formData.recycledMaterials.includes(material)}
-                          onCheckedChange={(checked: boolean) => {
-                            if (material === 'None of these') {
-                              // Clear all others if "None of these" is selected
-                              setFormData(prev => ({
-                                ...prev,
-                                recycledMaterials: checked ? ['None of these'] : [],
-                              }))
-                            } else {
-                              // Remove "None of these" if any other option is selected
-                              const newMaterials = checked
-                                ? [...formData.recycledMaterials.filter(m => m !== 'None of these'), material]
-                                : formData.recycledMaterials.filter(m => m !== material)
-                              setFormData(prev => ({
-                                ...prev,
-                                recycledMaterials: newMaterials,
-                              }))
-                            }
-                          }}
-                        />
-                        <Label htmlFor={`recycle-${material}`}>{material}</Label>
-                      </div>
-                    ),
-                  )}
+                  {[
+                    "Paper & Cardboard",
+                    "Plastics",
+                    "Glass",
+                    "Aluminum & Steel Cans",
+                    "None of these",
+                  ].map((material) => (
+                    <div key={material} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`recycle-${material}`}
+                        checked={formData.recycledMaterials.includes(material)}
+                        onCheckedChange={(checked: boolean) => {
+                          if (material === "None of these") {
+                            // Clear all others if "None of these" is selected
+                            setFormData((prev) => ({
+                              ...prev,
+                              recycledMaterials: checked ? ["None of these"] : [],
+                            }));
+                          } else {
+                            // Remove "None of these" if any other option is selected
+                            const newMaterials = checked
+                              ? [
+                                  ...formData.recycledMaterials.filter(
+                                    (m) => m !== "None of these"
+                                  ),
+                                  material,
+                                ]
+                              : formData.recycledMaterials.filter((m) => m !== material);
+                            setFormData((prev) => ({
+                              ...prev,
+                              recycledMaterials: newMaterials,
+                            }));
+                          }
+                        }}
+                      />
+                      <Label htmlFor={`recycle-${material}`}>{material}</Label>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
           </>
-        )
+        );
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   return (
     <div className="w-full max-w-2xl mx-auto p-3 md:p-4">
       <Card className="bg-gradient-to-br from-green-50 to-green-100">
         <CardHeader className="space-y-1 py-3 md:py-4">
-          <CardTitle className="text-xl md:text-2xl font-bold text-green-800">Carbon Footprint Calculator</CardTitle>
+          <CardTitle className="text-xl md:text-2xl font-bold text-green-800">
+            Carbon Footprint Calculator
+          </CardTitle>
           <CardDescription className="text-green-600 text-sm md:text-base">
             {isLoading
               ? isFinalizingDetails
-                ? 'Finalizing details...'
-                : 'Calculating your carbon footprint...'
+                ? "Finalizing details..."
+                : "Calculating your carbon footprint..."
               : `Step ${currentStep + 1} of ${steps.length}: ${steps[currentStep]}`}
           </CardDescription>
         </CardHeader>
@@ -822,7 +884,8 @@ export function Calculator() {
               <p className="text-center text-green-700 text-sm md:text-base">{currentFact}</p>
               {isFinalizingDetails && (
                 <p className="text-center text-yellow-600 text-sm md:text-base">
-                  We're taking a bit longer than usual to ensure accuracy. Thank you for your patience!
+                  We're taking a bit longer than usual to ensure accuracy. Thank you for your
+                  patience!
                 </p>
               )}
             </div>
@@ -833,7 +896,7 @@ export function Calculator() {
         <CardFooter className="flex justify-between py-3 md:py-4">
           {isLoading ? (
             <Button disabled variant="outline" className="w-full">
-              {isFinalizingDetails ? 'Finalizing...' : 'Calculating...'}
+              {isFinalizingDetails ? "Finalizing..." : "Calculating..."}
             </Button>
           ) : (
             <>
@@ -845,7 +908,11 @@ export function Calculator() {
                   Next
                 </Button>
               ) : (
-                <Button onClick={handleSubmit} disabled={!isStepValid(currentStep)} variant="default">
+                <Button
+                  onClick={handleSubmit}
+                  disabled={!isStepValid(currentStep)}
+                  variant="default"
+                >
                   Calculate
                 </Button>
               )}
@@ -854,5 +921,5 @@ export function Calculator() {
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }

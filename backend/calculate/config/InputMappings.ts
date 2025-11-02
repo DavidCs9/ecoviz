@@ -9,12 +9,12 @@ export class InputMappings {
    */
   static mapDietDescription(description: string): string {
     const dietMap: Record<string, string> = {
-      'Meat in most meals': 'meat-heavy',
-      'Meat a few times a week': 'average',
-      'Vegetarian (no meat)': 'vegetarian',
-      'Vegan (no animal products)': 'vegan',
-    }
-    return dietMap[description] || 'average'
+      "Meat in most meals": "meat-heavy",
+      "Meat a few times a week": "average",
+      "Vegetarian (no meat)": "vegetarian",
+      "Vegan (no animal products)": "vegan",
+    };
+    return dietMap[description] || "average";
   }
 
   /**
@@ -24,11 +24,11 @@ export class InputMappings {
    */
   static mapShoppingFrequency(description: string): string {
     const shoppingMap: Record<string, string> = {
-      'I buy new things frequently.': 'frequent',
-      'I buy new things every now and then.': 'average',
-      'I rarely buy new things and prefer second-hand.': 'minimal',
-    }
-    return shoppingMap[description] || 'average'
+      "I buy new things frequently.": "frequent",
+      "I buy new things every now and then.": "average",
+      "I rarely buy new things and prefer second-hand.": "minimal",
+    };
+    return shoppingMap[description] || "average";
   }
 
   /**
@@ -37,15 +37,15 @@ export class InputMappings {
    * @returns Standardized recycling habits
    */
   static mapRecyclingHabits(materials: string[]): string {
-    if (materials.includes('None of these')) {
-      return 'none'
+    if (materials.includes("None of these")) {
+      return "none";
     }
     if (materials.length >= 3) {
-      return 'all'
+      return "all";
     }
     if (materials.length >= 1) {
-      return 'some'
+      return "some";
     }
-    return 'none'
+    return "none";
   }
 }
