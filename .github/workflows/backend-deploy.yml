@@ -5,18 +5,48 @@ on:
     branches: [main, dev]
     paths:
       - "backend/**"
+      - "biome.json"
+      - "package.json"
       - ".github/workflows/backend-deploy.yml"
   pull_request:
     branches: [main, dev]
     paths:
       - "backend/**"
+      - "biome.json"
+      - "package.json"
 
 env:
   AWS_REGION: us-west-1
 
 jobs:
+  # Lint and format check job (runs for both PRs and pushes)
+  lint-and-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install root dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Install backend dependencies
+        run: cd backend && npm ci --ignore-scripts
+
+      - name: Run Biome check
+        run: npm run check
+
+      - name: Build backend
+        run: cd backend && npm run build
+
   deploy-dev:
     runs-on: ubuntu-latest
+    needs: lint-and-check
     if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
 
     steps:
@@ -86,6 +116,7 @@ jobs:
 
   deploy-prod:
     runs-on: ubuntu-latest
+    needs: lint-and-check
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:

@@ -5,11 +5,15 @@ on:
     branches: [main, dev]
     paths:
       - "frontend/**"
+      - "biome.json"
+      - "package.json"
       - ".github/workflows/frontend-deploy.yml"
   pull_request:
     branches: [main, dev]
     paths:
       - "frontend/**"
+      - "biome.json"
+      - "package.json"
 
 env:
   AWS_REGION: us-west-1
@@ -28,21 +32,18 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
-          cache-dependency-path: frontend/package-lock.json
 
-      - name: Install dependencies
-        run: |
-          cd frontend && npm ci --ignore-scripts
+      - name: Install root dependencies
+        run: npm ci --ignore-scripts
 
-      - name: Run linter
-        run: |
-          cd frontend
-          npm run lint
+      - name: Install frontend dependencies
+        run: cd frontend && npm ci --ignore-scripts
+
+      - name: Run Biome check
+        run: npm run check
 
       - name: Build frontend
-        run: |
-          cd frontend
-          npm run build
+        run: cd frontend && npm run build
 
       - name: Upload build artifacts
         if: github.event_name == 'push'
