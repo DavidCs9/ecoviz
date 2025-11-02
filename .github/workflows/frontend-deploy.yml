@@ -42,16 +42,10 @@ jobs:
       - name: Run Biome check
         run: npm run check
 
-      - name: Build frontend
+      # Note: Build artifacts are created in deploy jobs with proper env vars
+      # This job only validates the code can build
+      - name: Test build frontend (without env vars)
         run: cd frontend && npm run build
-
-      - name: Upload build artifacts
-        if: github.event_name == 'push'
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-build-${{ github.sha }}
-          path: frontend/dist
-          retention-days: 7
 
   # Deploy to Dev environment
   deploy-dev:
@@ -90,11 +84,16 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-build-${{ github.sha }}
-          path: frontend/dist
+      - name: Install frontend dependencies
+        run: cd frontend && npm ci --ignore-scripts
+
+      - name: Create production .env file for Dev
+        run: |
+          cd frontend
+          echo "VITE_API_URL=https://0q7pp37t7f.execute-api.us-west-1.amazonaws.com/dev" > .env.production
+
+      - name: Build frontend with Dev API URL
+        run: cd frontend && npm run build
 
       - name: Deploy infrastructure to Dev
         run: |
@@ -198,11 +197,16 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-build-${{ github.sha }}
-          path: frontend/dist
+      - name: Install frontend dependencies
+        run: cd frontend && npm ci --ignore-scripts
+
+      - name: Create production .env file for Prod
+        run: |
+          cd frontend
+          echo "VITE_API_URL=https://usug3h082m.execute-api.us-west-1.amazonaws.com/prod" > .env.production
+
+      - name: Build frontend with Prod API URL
+        run: cd frontend && npm run build
 
       - name: Deploy infrastructure to Production
         run: |
