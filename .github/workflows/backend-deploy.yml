@@ -8,12 +8,18 @@ on:
       - "biome.json"
       - "package.json"
       - ".github/workflows/backend-deploy.yml"
+    paths-ignore:
+      - "backend/**/*.md"
+      - "*.md"
   pull_request:
     branches: [main, dev]
     paths:
       - "backend/**"
       - "biome.json"
       - "package.json"
+    paths-ignore:
+      - "backend/**/*.md"
+      - "*.md"
 
 env:
   AWS_REGION: us-west-1
