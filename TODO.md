@@ -1,10 +1,8 @@
-[x] Create backend CI/CD pipeline
-[] Remake form to a more simpler one
-[x] Add langchain to the backend
-[x] Add zod validation for frontend and backend
-[x] Remove mail
-[] Save payload and results on DynamoDB
-[x] Better result handling if there is no result
-[] Monitoring and logging
-[] e2e tests
-[] AI judge pipeline
+- [x] fix frontend UI
+- [x] Improve calculate form so you cannot advance without filling required fields
+- [] Improve testing performance
+- [] Add api-key
+- [] Migrate from vercel to s3
+- [] Update github readme personal
+- [] break down calculator into smaller components
+- [x] Set up terminal oh my zsh

@@ -102,6 +102,60 @@ export function Calculator() {
     })
   }
 
+  // Validation function for each step
+  const isStepValid = (step: number): boolean => {
+    switch (step) {
+      case 0: {
+        // Housing - Required: zipCode, householdSize, monthlyElectricityBill
+        const hasBasicHousing =
+          formData.zipCode.trim() !== '' &&
+          formData.householdSize.trim() !== '' &&
+          formData.monthlyElectricityBill.trim() !== ''
+
+        // If natural gas is selected, require gas bill
+        const naturalGasValid =
+          !formData.usesNaturalGas || (formData.usesNaturalGas && formData.monthlyNaturalGasBill.trim() !== '')
+
+        // If heating oil is selected, require fills per year and tank size
+        const heatingOilValid =
+          !formData.usesHeatingOil ||
+          (formData.usesHeatingOil &&
+            formData.heatingOilFillsPerYear.trim() !== '' &&
+            formData.heatingOilTankSizeGallons.trim() !== '')
+
+        return hasBasicHousing && naturalGasValid && heatingOilValid
+      }
+
+      case 1: {
+        // Transportation - At least one transportation method should have data
+        const hasCar =
+          formData.carMake.trim() !== '' && formData.carModel.trim() !== '' && formData.carYear.trim() !== ''
+        const hasCommute = formData.commuteMilesOneWay.trim() !== '' && formData.commuteDaysPerWeek.trim() !== ''
+        const hasErrands = formData.weeklyErrandsMilesRange.trim() !== ''
+        const hasPublicTransit = formData.weeklyBusMiles.trim() !== '' || formData.weeklyTrainMiles.trim() !== ''
+        const hasFlights =
+          formData.flightsUnder3Hours.trim() !== '' ||
+          formData.flights3To6Hours.trim() !== '' ||
+          formData.flightsOver6Hours.trim() !== ''
+
+        return hasCar || hasCommute || hasErrands || hasPublicTransit || hasFlights
+      }
+
+      case 2: // Food
+        return formData.dietDescription.trim() !== ''
+
+      case 3: {
+        // Consumption
+        const hasShoppingFrequency = formData.shoppingFrequencyDescription.trim() !== ''
+        const hasRecycling = formData.recycledMaterials.length > 0
+        return hasShoppingFrequency && hasRecycling
+      }
+
+      default:
+        return true
+    }
+  }
+
   useEffect(() => {
     // Check if user has an ID in localStorage
     let userId = localStorage.getItem('ecoviz_user_id')
@@ -347,9 +401,11 @@ export function Calculator() {
       case 0:
         return (
           <>
-            <div className="space-y-3">
+            <div className="space-y-2 md:space-y-3">
               <div>
-                <Label htmlFor="zipCode">What's your ZIP code?</Label>
+                <Label htmlFor="zipCode" className="text-sm md:text-base">
+                  What's your ZIP code?
+                </Label>
                 <Input
                   type="text"
                   id="zipCode"
@@ -357,11 +413,14 @@ export function Calculator() {
                   value={formData.zipCode}
                   onChange={handleInputChange}
                   placeholder="e.g., 90210"
+                  className="text-sm md:text-base"
                 />
-                <p className="text-sm text-gray-500 mt-1">We use this to estimate local energy costs</p>
+                <p className="text-xs md:text-sm text-gray-500 mt-1">We use this to estimate local energy costs</p>
               </div>
               <div>
-                <Label htmlFor="householdSize">How many people live in your home?</Label>
+                <Label htmlFor="householdSize" className="text-sm md:text-base">
+                  How many people live in your home?
+                </Label>
                 <Input
                   type="number"
                   id="householdSize"
@@ -369,10 +428,13 @@ export function Calculator() {
                   value={formData.householdSize}
                   onChange={handleInputChange}
                   placeholder="e.g., 2 for a couple, 4 for a family"
+                  className="text-sm md:text-base"
                 />
               </div>
               <div>
-                <Label htmlFor="monthlyElectricityBill">What's your average monthly electricity bill?</Label>
+                <Label htmlFor="monthlyElectricityBill" className="text-sm md:text-base">
+                  What's your average monthly electricity bill?
+                </Label>
                 <Input
                   type="number"
                   id="monthlyElectricityBill"
@@ -380,8 +442,9 @@ export function Calculator() {
                   value={formData.monthlyElectricityBill}
                   onChange={handleInputChange}
                   placeholder="e.g., 150"
+                  className="text-sm md:text-base"
                 />
-                <p className="text-sm text-gray-500 mt-1">Enter the dollar amount (without $ sign)</p>
+                <p className="text-xs md:text-sm text-gray-500 mt-1">Enter the dollar amount (without $ sign)</p>
               </div>
               <div>
                 <div className="flex items-center space-x-2">
@@ -449,12 +512,14 @@ export function Calculator() {
       case 1:
         return (
           <>
-            <div className="space-y-3">
-              <div className="space-y-2">
-                <Label>What is your primary car?</Label>
-                <div className="grid grid-cols-3 gap-2">
+            <div className="space-y-2 md:space-y-3">
+              <div className="space-y-1 md:space-y-2">
+                <Label className="text-sm md:text-base">What is your primary car?</Label>
+                <div className="grid grid-cols-3 gap-1 md:gap-2">
                   <div>
-                    <Label htmlFor="carMake">Make</Label>
+                    <Label htmlFor="carMake" className="text-xs md:text-sm">
+                      Make
+                    </Label>
                     <Input
                       type="text"
                       id="carMake"
@@ -462,10 +527,13 @@ export function Calculator() {
                       value={formData.carMake}
                       onChange={handleInputChange}
                       placeholder="e.g., Honda"
+                      className="text-xs md:text-base"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="carModel">Model</Label>
+                    <Label htmlFor="carModel" className="text-xs md:text-sm">
+                      Model
+                    </Label>
                     <Input
                       type="text"
                       id="carModel"
@@ -473,10 +541,13 @@ export function Calculator() {
                       value={formData.carModel}
                       onChange={handleInputChange}
                       placeholder="e.g., Civic"
+                      className="text-xs md:text-base"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="carYear">Year</Label>
+                    <Label htmlFor="carYear" className="text-xs md:text-sm">
+                      Year
+                    </Label>
                     <Input
                       type="number"
                       id="carYear"
@@ -484,12 +555,15 @@ export function Calculator() {
                       value={formData.carYear}
                       onChange={handleInputChange}
                       placeholder="e.g., 2021"
+                      className="text-xs md:text-base"
                     />
                   </div>
                 </div>
               </div>
               <div>
-                <Label htmlFor="commuteMilesOneWay">How many miles is your daily commute (one way)?</Label>
+                <Label htmlFor="commuteMilesOneWay" className="text-sm md:text-base">
+                  How many miles is your daily commute (one way)?
+                </Label>
                 <Input
                   type="number"
                   id="commuteMilesOneWay"
@@ -497,12 +571,15 @@ export function Calculator() {
                   value={formData.commuteMilesOneWay}
                   onChange={handleInputChange}
                   placeholder="e.g., 15"
+                  className="text-sm md:text-base"
                 />
               </div>
               <div>
-                <Label htmlFor="commuteDaysPerWeek">How many days per week do you commute?</Label>
+                <Label htmlFor="commuteDaysPerWeek" className="text-sm md:text-base">
+                  How many days per week do you commute?
+                </Label>
                 <Select onValueChange={handleSelectChange('commuteDaysPerWeek')} value={formData.commuteDaysPerWeek}>
-                  <SelectTrigger>
+                  <SelectTrigger className="text-sm md:text-base">
                     <SelectValue placeholder="Select days per week" />
                   </SelectTrigger>
                   <SelectContent>
@@ -518,31 +595,44 @@ export function Calculator() {
                 </Select>
               </div>
               <div>
-                <Label>Excluding commute, how many miles do you drive per week for errands, leisure, etc.?</Label>
+                <Label className="text-sm md:text-base">
+                  Excluding commute, how many miles do you drive per week for errands, leisure, etc.?
+                </Label>
                 <RadioGroup
                   onValueChange={handleSelectChange('weeklyErrandsMilesRange')}
                   value={formData.weeklyErrandsMilesRange}
+                  className="space-y-1"
                 >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="0-25" id="errands-0-25" />
-                    <Label htmlFor="errands-0-25">0-25 miles</Label>
+                    <Label htmlFor="errands-0-25" className="text-sm md:text-base">
+                      0-25 miles
+                    </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="25-50" id="errands-25-50" />
-                    <Label htmlFor="errands-25-50">25-50 miles</Label>
+                    <Label htmlFor="errands-25-50" className="text-sm md:text-base">
+                      25-50 miles
+                    </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="50-100" id="errands-50-100" />
-                    <Label htmlFor="errands-50-100">50-100 miles</Label>
+                    <Label htmlFor="errands-50-100" className="text-sm md:text-base">
+                      50-100 miles
+                    </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="100+" id="errands-100+" />
-                    <Label htmlFor="errands-100+">100+ miles</Label>
+                    <Label htmlFor="errands-100+" className="text-sm md:text-base">
+                      100+ miles
+                    </Label>
                   </div>
                 </RadioGroup>
               </div>
               <div>
-                <Label htmlFor="weeklyBusMiles">In a typical week, how many miles do you travel by bus?</Label>
+                <Label htmlFor="weeklyBusMiles" className="text-sm md:text-base">
+                  In a typical week, how many miles do you travel by bus?
+                </Label>
                 <Input
                   type="number"
                   id="weeklyBusMiles"
@@ -550,10 +640,13 @@ export function Calculator() {
                   value={formData.weeklyBusMiles}
                   onChange={handleInputChange}
                   placeholder="e.g., 20"
+                  className="text-sm md:text-base"
                 />
               </div>
               <div>
-                <Label htmlFor="weeklyTrainMiles">In a typical week, how many miles do you travel by train?</Label>
+                <Label htmlFor="weeklyTrainMiles" className="text-sm md:text-base">
+                  In a typical week, how many miles do you travel by train?
+                </Label>
                 <Input
                   type="number"
                   id="weeklyTrainMiles"
@@ -561,13 +654,16 @@ export function Calculator() {
                   value={formData.weeklyTrainMiles}
                   onChange={handleInputChange}
                   placeholder="e.g., 10"
+                  className="text-sm md:text-base"
                 />
               </div>
               <div>
-                <Label>In the past year, how many flights did you take?</Label>
-                <div className="space-y-2">
+                <Label className="text-sm md:text-base">In the past year, how many flights did you take?</Label>
+                <div className="space-y-1 md:space-y-2 mt-1">
                   <div>
-                    <Label htmlFor="flightsUnder3Hours">Under 3 hours</Label>
+                    <Label htmlFor="flightsUnder3Hours" className="text-xs md:text-sm">
+                      Under 3 hours
+                    </Label>
                     <Input
                       type="number"
                       id="flightsUnder3Hours"
@@ -575,10 +671,13 @@ export function Calculator() {
                       value={formData.flightsUnder3Hours}
                       onChange={handleInputChange}
                       placeholder="e.g., 4"
+                      className="text-sm md:text-base"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="flights3To6Hours">Between 3 and 6 hours</Label>
+                    <Label htmlFor="flights3To6Hours" className="text-xs md:text-sm">
+                      Between 3 and 6 hours
+                    </Label>
                     <Input
                       type="number"
                       id="flights3To6Hours"
@@ -586,10 +685,13 @@ export function Calculator() {
                       value={formData.flights3To6Hours}
                       onChange={handleInputChange}
                       placeholder="e.g., 2"
+                      className="text-sm md:text-base"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="flightsOver6Hours">Over 6 hours</Label>
+                    <Label htmlFor="flightsOver6Hours" className="text-xs md:text-sm">
+                      Over 6 hours
+                    </Label>
                     <Input
                       type="number"
                       id="flightsOver6Hours"
@@ -597,6 +699,7 @@ export function Calculator() {
                       value={formData.flightsOver6Hours}
                       onChange={handleInputChange}
                       placeholder="e.g., 1"
+                      className="text-sm md:text-base"
                     />
                   </div>
                 </div>
@@ -700,9 +803,9 @@ export function Calculator() {
   }
 
   return (
-    <div className="w-full p-3 md:p-4">
-      <Card className="max-w-2xl mx-auto bg-gradient-to-br from-green-50 to-green-100 max-h-[85vh] overflow-y-auto">
-        <CardHeader className="space-y-1 py-4">
+    <div className="w-full max-w-2xl mx-auto p-3 md:p-4">
+      <Card className="bg-gradient-to-br from-green-50 to-green-100">
+        <CardHeader className="space-y-1 py-3 md:py-4">
           <CardTitle className="text-xl md:text-2xl font-bold text-green-800">Carbon Footprint Calculator</CardTitle>
           <CardDescription className="text-green-600 text-sm md:text-base">
             {isLoading
@@ -712,7 +815,7 @@ export function Calculator() {
               : `Step ${currentStep + 1} of ${steps.length}: ${steps[currentStep]}`}
           </CardDescription>
         </CardHeader>
-        <CardContent className="py-4">
+        <CardContent className="py-3 md:py-4 max-h-[50vh] md:max-h-[55vh] overflow-y-auto">
           {isLoading ? (
             <div className="space-y-4">
               <Progress value={loadingProgress} className="w-full" />
@@ -727,7 +830,7 @@ export function Calculator() {
             renderStep()
           )}
         </CardContent>
-        <CardFooter className="flex justify-between py-4">
+        <CardFooter className="flex justify-between py-3 md:py-4">
           {isLoading ? (
             <Button disabled variant="outline" className="w-full">
               {isFinalizingDetails ? 'Finalizing...' : 'Calculating...'}
@@ -738,9 +841,11 @@ export function Calculator() {
                 Previous
               </Button>
               {currentStep < steps.length - 1 ? (
-                <Button onClick={handleNext}>Next</Button>
+                <Button onClick={handleNext} disabled={!isStepValid(currentStep)}>
+                  Next
+                </Button>
               ) : (
-                <Button onClick={handleSubmit} variant="default">
+                <Button onClick={handleSubmit} disabled={!isStepValid(currentStep)} variant="default">
                   Calculate
                 </Button>
               )}
