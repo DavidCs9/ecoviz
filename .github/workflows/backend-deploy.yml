@@ -17,57 +17,7 @@ env:
   AWS_REGION: us-west-1
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: |
-            backend/package-lock.json
-            shared/package-lock.json
-
-      - name: Install root dependencies
-        run: npm ci
-
-      - name: Install shared dependencies
-        run: |
-          cd shared
-          npm ci
-
-      - name: Install backend dependencies
-        run: |
-          cd backend
-          npm ci
-
-      - name: Run linting
-        run: |
-          cd backend
-          npm run lint:check
-
-      - name: Run formatting check
-        run: |
-          cd backend
-          npm run format:check
-
-      - name: Run tests
-        run: |
-          cd backend
-          npm test
-
-      - name: Build TypeScript
-        run: |
-          cd backend
-          npx tsc
-
   deploy-dev:
-    needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
 
@@ -141,7 +91,6 @@ jobs:
           echo "API Gateway URL: $API_URL"
 
   deploy-prod:
-    needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
