@@ -8,7 +8,13 @@
     "build": "tsc",
     "deploy": "npm run build && dotenv -e .env -- sam deploy --parameter-overrides ParameterKey=OpenAIAPIKey,ParameterValue=$OPENAI_API_KEY",
     "local:invoke": "sam local invoke CalculateFunction --event events/calculate.json",
-    "local:api": "sam local start-api --port 3001"
+    "local:api": "sam local start-api --port 3001",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "format": "biome format .",
+    "format:fix": "biome format --write .",
+    "check": "biome check .",
+    "check:fix": "biome check --write ."
   },
   "dependencies": {
     "@langchain/core": "^0.3.61",

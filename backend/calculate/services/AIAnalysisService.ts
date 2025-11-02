@@ -1,23 +1,23 @@
-import { ChatOpenAI } from '@langchain/openai'
-import { ChatPromptTemplate } from '@langchain/core/prompts'
-import { CalculationData, AIAnalysisResponse } from '../types'
-import { aiAnalysisSchema } from '../schema/schema'
-import { EmissionFactors } from '../config'
+import { ChatPromptTemplate } from "@langchain/core/prompts";
+import { ChatOpenAI } from "@langchain/openai";
+import { EmissionFactors } from "../config";
+import { aiAnalysisSchema } from "../schema/schema";
+import type { AIAnalysisResponse, CalculationData } from "../types";
 
 /**
  * Service responsible for AI-powered carbon footprint analysis
  * Integrates with OpenAI to provide personalized recommendations
  */
 export class AIAnalysisService {
-  private llm: ChatOpenAI
+  private llm: ChatOpenAI;
 
   constructor() {
     this.llm = new ChatOpenAI({
       apiKey: process.env.OPENAI_API_KEY,
-      modelName: 'gpt-4.1-nano-2025-04-14',
+      modelName: "gpt-4.1-nano-2025-04-14",
       temperature: 0.7,
       maxTokens: 1500,
-    })
+    });
   }
 
   /**
@@ -30,27 +30,32 @@ export class AIAnalysisService {
   async generateAnalysis(
     carbonFootprint: number,
     data: CalculationData,
-    emissionsByCategory: { housing: number; transportation: number; food: number; consumption: number },
+    emissionsByCategory: {
+      housing: number;
+      transportation: number;
+      food: number;
+      consumption: number;
+    }
   ): Promise<AIAnalysisResponse> {
     // Calculate percentage contributions
-    const percentages = this.calculatePercentages(carbonFootprint, emissionsByCategory)
+    const percentages = this.calculatePercentages(carbonFootprint, emissionsByCategory);
 
     // Identify top contributors
-    const contributors = this.identifyTopContributors(emissionsByCategory, percentages)
+    const contributors = this.identifyTopContributors(emissionsByCategory, percentages);
 
     // Create fallback response for when AI is not available
-    const fallbackResponse = this.createFallbackResponse(carbonFootprint, contributors)
+    const fallbackResponse = this.createFallbackResponse(carbonFootprint, contributors);
 
     // If no OpenAI API key is provided or in test environment, return fallback
-    if (!process.env.OPENAI_API_KEY || process.env.NODE_ENV === 'test') {
-      return fallbackResponse
+    if (!process.env.OPENAI_API_KEY || process.env.NODE_ENV === "test") {
+      return fallbackResponse;
     }
 
     try {
-      return await this.callOpenAI(carbonFootprint, data, emissionsByCategory, percentages)
+      return await this.callOpenAI(carbonFootprint, data, emissionsByCategory, percentages);
     } catch (error) {
-      console.error('Error getting AI analysis:', error)
-      return fallbackResponse
+      console.error("Error getting AI analysis:", error);
+      return fallbackResponse;
     }
   }
 
@@ -59,14 +64,14 @@ export class AIAnalysisService {
    */
   private calculatePercentages(
     totalEmissions: number,
-    emissions: { housing: number; transportation: number; food: number; consumption: number },
+    emissions: { housing: number; transportation: number; food: number; consumption: number }
   ) {
     return {
       housing: (emissions.housing / totalEmissions) * 100,
       transportation: (emissions.transportation / totalEmissions) * 100,
       food: (emissions.food / totalEmissions) * 100,
       consumption: (emissions.consumption / totalEmissions) * 100,
-    }
+    };
   }
 
   /**
@@ -74,14 +79,22 @@ export class AIAnalysisService {
    */
   private identifyTopContributors(
     emissions: { housing: number; transportation: number; food: number; consumption: number },
-    percentages: { housing: number; transportation: number; food: number; consumption: number },
+    percentages: { housing: number; transportation: number; food: number; consumption: number }
   ) {
     return [
-      { category: 'housing', percentage: percentages.housing, emissions: emissions.housing },
-      { category: 'transportation', percentage: percentages.transportation, emissions: emissions.transportation },
-      { category: 'food', percentage: percentages.food, emissions: emissions.food },
-      { category: 'consumption', percentage: percentages.consumption, emissions: emissions.consumption },
-    ].sort((a, b) => b.percentage - a.percentage)
+      { category: "housing", percentage: percentages.housing, emissions: emissions.housing },
+      {
+        category: "transportation",
+        percentage: percentages.transportation,
+        emissions: emissions.transportation,
+      },
+      { category: "food", percentage: percentages.food, emissions: emissions.food },
+      {
+        category: "consumption",
+        percentage: percentages.consumption,
+        emissions: emissions.consumption,
+      },
+    ].sort((a, b) => b.percentage - a.percentage);
   }
 
   /**
@@ -89,7 +102,7 @@ export class AIAnalysisService {
    */
   private createFallbackResponse(
     carbonFootprint: number,
-    contributors: Array<{ category: string; percentage: number; emissions: number }>,
+    contributors: Array<{ category: string; percentage: number; emissions: number }>
   ): AIAnalysisResponse {
     return {
       summary: {
@@ -107,11 +120,15 @@ export class AIAnalysisService {
           dataReference: `Based on your ${contributors[0].category} data`,
           potentialImpact: {
             co2Reduction: Math.round(contributors[0].emissions * 0.2),
-            unit: 'kg/year' as const,
+            unit: "kg/year" as const,
           },
           goal: `Reduce ${contributors[0].category} emissions by 20%`,
-          priority: 'high' as const,
-          category: contributors[0].category as 'housing' | 'transportation' | 'food' | 'consumption',
+          priority: "high" as const,
+          category: contributors[0].category as
+            | "housing"
+            | "transportation"
+            | "food"
+            | "consumption",
         },
         {
           title: `Optimize ${contributors[1].category.charAt(0).toUpperCase() + contributors[1].category.slice(1)}`,
@@ -119,16 +136,20 @@ export class AIAnalysisService {
           dataReference: `Based on your ${contributors[1].category} data`,
           potentialImpact: {
             co2Reduction: Math.round(contributors[1].emissions * 0.15),
-            unit: 'kg/year' as const,
+            unit: "kg/year" as const,
           },
           goal: `Reduce ${contributors[1].category} emissions by 15%`,
-          priority: 'medium' as const,
-          category: contributors[1].category as 'housing' | 'transportation' | 'food' | 'consumption',
+          priority: "medium" as const,
+          category: contributors[1].category as
+            | "housing"
+            | "transportation"
+            | "food"
+            | "consumption",
         },
       ],
       disclaimer:
-        'These recommendations are generated based on your emission profile and should be considered as general advice. Consult environmental experts for personalized strategies.',
-    }
+        "These recommendations are generated based on your emission profile and should be considered as general advice. Consult environmental experts for personalized strategies.",
+    };
   }
 
   /**
@@ -138,37 +159,44 @@ export class AIAnalysisService {
     carbonFootprint: number,
     data: CalculationData,
     emissions: { housing: number; transportation: number; food: number; consumption: number },
-    percentages: { housing: number; transportation: number; food: number; consumption: number },
+    percentages: { housing: number; transportation: number; food: number; consumption: number }
   ): Promise<AIAnalysisResponse> {
-    const parser = this.createParser()
-    const promptTemplate = this.createPromptTemplate()
-    const chain = promptTemplate.pipe(this.llm)
+    const parser = this.createParser();
+    const promptTemplate = this.createPromptTemplate();
+    const chain = promptTemplate.pipe(this.llm);
 
-    const inputVariables = this.prepareInputVariables(carbonFootprint, data, emissions, percentages, parser)
+    const inputVariables = this.prepareInputVariables(
+      carbonFootprint,
+      data,
+      emissions,
+      percentages,
+      parser
+    );
 
     // Log the formatted prompt for debugging
-    const formattedPrompt = await promptTemplate.formatMessages(inputVariables)
-    console.log('AI Analysis Prompt:', JSON.stringify(formattedPrompt, null, 2))
+    const formattedPrompt = await promptTemplate.formatMessages(inputVariables);
+    console.log("AI Analysis Prompt:", JSON.stringify(formattedPrompt, null, 2));
 
-    const llmResult = await chain.invoke(inputVariables)
+    const llmResult = await chain.invoke(inputVariables);
 
     // Clean and parse the response
-    let cleanedContent = typeof llmResult.content === 'string' ? llmResult.content : JSON.stringify(llmResult.content)
+    let cleanedContent =
+      typeof llmResult.content === "string" ? llmResult.content : JSON.stringify(llmResult.content);
 
     // Remove markdown code blocks if present
     cleanedContent = cleanedContent
-      .replace(/^```json\s*\n?/, '')
-      .replace(/\n?\s*```\s*$/, '')
-      .trim()
+      .replace(/^```json\s*\n?/, "")
+      .replace(/\n?\s*```\s*$/, "")
+      .trim();
 
     // Normalize category values to lowercase to match schema
     cleanedContent = cleanedContent
       .replace(/"category":\s*"Transportation"/g, '"category": "transportation"')
       .replace(/"category":\s*"Housing"/g, '"category": "housing"')
       .replace(/"category":\s*"Food"/g, '"category": "food"')
-      .replace(/"category":\s*"Consumption"/g, '"category": "consumption"')
+      .replace(/"category":\s*"Consumption"/g, '"category": "consumption"');
 
-    return parser.parse(cleanedContent)
+    return parser.parse(cleanedContent);
   }
 
   /**
@@ -176,7 +204,8 @@ export class AIAnalysisService {
    */
   private createParser() {
     return {
-      getFormatInstructions: () => `You must respond with a JSON object that matches this exact structure:
+      getFormatInstructions:
+        () => `You must respond with a JSON object that matches this exact structure:
 {
   "summary": {
     "totalEmissions": number,
@@ -210,14 +239,14 @@ export class AIAnalysisService {
 }`,
       parse: (text: string): AIAnalysisResponse => {
         try {
-          const parsed = JSON.parse(text)
-          return aiAnalysisSchema.parse(parsed)
+          const parsed = JSON.parse(text);
+          return aiAnalysisSchema.parse(parsed);
         } catch (error) {
-          console.error('Failed to parse AI response:', error)
-          throw new Error('Invalid AI response format')
+          console.error("Failed to parse AI response:", error);
+          throw new Error("Invalid AI response format");
         }
       },
-    }
+    };
   }
 
   /**
@@ -226,11 +255,11 @@ export class AIAnalysisService {
   private createPromptTemplate() {
     return ChatPromptTemplate.fromMessages([
       [
-        'system',
-        'You are a precise environmental sustainability expert. Analyze carbon footprint data and provide structured recommendations.\n\nIMPORTANT: Respond with ONLY pure JSON - no markdown code blocks, no ```json tags, no additional text. Just the raw JSON object.\n\n{formatInstructions}',
+        "system",
+        "You are a precise environmental sustainability expert. Analyze carbon footprint data and provide structured recommendations.\n\nIMPORTANT: Respond with ONLY pure JSON - no markdown code blocks, no ```json tags, no additional text. Just the raw JSON object.\n\n{formatInstructions}",
       ],
       [
-        'user',
+        "user",
         `Analyze this user's carbon footprint ({carbonFootprint} kg CO2e/year):
   
         Emissions by category:
@@ -257,7 +286,7 @@ export class AIAnalysisService {
   
         Respond with ONLY the JSON object, no markdown formatting.`,
       ],
-    ])
+    ]);
   }
 
   /**
@@ -268,7 +297,7 @@ export class AIAnalysisService {
     data: CalculationData,
     emissions: { housing: number; transportation: number; food: number; consumption: number },
     percentages: { housing: number; transportation: number; food: number; consumption: number },
-    parser: { getFormatInstructions: () => string },
+    parser: { getFormatInstructions: () => string }
   ) {
     return {
       formatInstructions: parser.getFormatInstructions(),
@@ -290,6 +319,6 @@ export class AIAnalysisService {
       wasteLevel: data.food.wasteLevel,
       shoppingHabits: data.consumption.shoppingHabits,
       recyclingHabits: data.consumption.recyclingHabits,
-    }
+    };
   }
 }

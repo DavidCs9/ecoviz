@@ -1,11 +1,9 @@
-import { ShieldCheck, Server, Database, Brain, BarChart, Box } from 'lucide-react'
-
-import { LucideIcon } from 'lucide-react'
+import { BarChart, Box, Brain, Database, type LucideIcon, Server, ShieldCheck } from "lucide-react";
 
 interface TechItemProps {
-  icon: LucideIcon
-  title: string
-  description: string
+  icon: LucideIcon;
+  title: string;
+  description: string;
 }
 
 const TechItem: React.FC<TechItemProps> = ({ icon: Icon, title, description }) => (
@@ -16,41 +14,41 @@ const TechItem: React.FC<TechItemProps> = ({ icon: Icon, title, description }) =
       <p className="mt-1 text-sm text-gray-50">{description}</p>
     </div>
   </div>
-)
+);
 
 const AboutEcoViz = () => {
   const technologies = [
     {
       icon: ShieldCheck,
-      title: 'React & TypeScript',
-      description: 'Type-safe frontend with modern components',
+      title: "React & TypeScript",
+      description: "Type-safe frontend with modern components",
     },
     {
       icon: Server,
-      title: 'AWS Lambda',
-      description: 'Serverless backend for calculations',
+      title: "AWS Lambda",
+      description: "Serverless backend for calculations",
     },
     {
       icon: Brain,
-      title: 'OpenAI GPT-4',
-      description: 'AI-powered carbon footprint analysis',
+      title: "OpenAI GPT-4",
+      description: "AI-powered carbon footprint analysis",
     },
     {
       icon: BarChart,
-      title: 'Recharts',
-      description: 'Interactive data visualizations',
+      title: "Recharts",
+      description: "Interactive data visualizations",
     },
     {
       icon: Database,
-      title: 'Radix UI',
-      description: 'Accessible component library',
+      title: "Radix UI",
+      description: "Accessible component library",
     },
     {
       icon: Box,
-      title: 'Vercel',
-      description: 'Frontend deployment platform',
+      title: "Vercel",
+      description: "Frontend deployment platform",
     },
-  ]
+  ];
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -59,9 +57,9 @@ const AboutEcoViz = () => {
       <section className="mb-12">
         <h2 className="text-2xl font-semibold text-blue-100 mb-4">Our Mission</h2>
         <p className="text-white">
-          EcoViz helps you calculate, visualize, and reduce your carbon footprint. We provide AI-powered analysis across
-          housing, transportation, food, and consumption with personalized recommendations for environmental impact
-          reduction.
+          EcoViz helps you calculate, visualize, and reduce your carbon footprint. We provide
+          AI-powered analysis across housing, transportation, food, and consumption with
+          personalized recommendations for environmental impact reduction.
         </p>
       </section>
 
@@ -84,7 +82,7 @@ const AboutEcoViz = () => {
         </div>
       </section>
     </div>
-  )
-}
+  );
+};
 
-export default AboutEcoViz
+export default AboutEcoViz;

@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from "zod";
 
 export const aiAnalysisSchema = z.object({
   summary: z.object({
@@ -12,7 +12,7 @@ export const aiAnalysisSchema = z.object({
         category: z.string(),
         percentage: z.number(),
         emissions: z.number(),
-      }),
+      })
     ),
   }),
   recommendations: z.array(
@@ -22,12 +22,12 @@ export const aiAnalysisSchema = z.object({
       dataReference: z.string(),
       potentialImpact: z.object({
         co2Reduction: z.number(),
-        unit: z.literal('kg/year'),
+        unit: z.literal("kg/year"),
       }),
       goal: z.string(),
-      priority: z.enum(['high', 'medium', 'low']),
-      category: z.enum(['housing', 'transportation', 'food', 'consumption']),
-    }),
+      priority: z.enum(["high", "medium", "low"]),
+      category: z.enum(["housing", "transportation", "food", "consumption"]),
+    })
   ),
   disclaimer: z.string(),
-})
+});

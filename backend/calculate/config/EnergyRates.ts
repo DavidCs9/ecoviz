@@ -4,13 +4,13 @@
  */
 export class EnergyRates {
   // Electricity rates ($/kWh) - based on EIA average data
-  static readonly DEFAULT_ELECTRICITY_RATE_USD_PER_KWH = 0.16
+  static readonly DEFAULT_ELECTRICITY_RATE_USD_PER_KWH = 0.16;
 
   // Natural gas rates ($/therm) - based on EIA average data
-  static readonly DEFAULT_NATURAL_GAS_RATE_USD_PER_THERM = 1.2
+  static readonly DEFAULT_NATURAL_GAS_RATE_USD_PER_THERM = 1.2;
 
   // Calculation periods
-  static readonly MONTHS_PER_YEAR = 12
+  static readonly MONTHS_PER_YEAR = 12;
 
   /**
    * Calculate annual electricity consumption from monthly bill
@@ -20,9 +20,9 @@ export class EnergyRates {
    */
   static calculateElectricityUsage(
     monthlyBill: number,
-    ratePerKWh: number = this.DEFAULT_ELECTRICITY_RATE_USD_PER_KWH,
+    ratePerKWh: number = EnergyRates.DEFAULT_ELECTRICITY_RATE_USD_PER_KWH
   ): number {
-    return (monthlyBill * this.MONTHS_PER_YEAR) / ratePerKWh
+    return (monthlyBill * EnergyRates.MONTHS_PER_YEAR) / ratePerKWh;
   }
 
   /**
@@ -33,8 +33,8 @@ export class EnergyRates {
    */
   static calculateNaturalGasUsage(
     monthlyBill: number,
-    ratePerTherm: number = this.DEFAULT_NATURAL_GAS_RATE_USD_PER_THERM,
+    ratePerTherm: number = EnergyRates.DEFAULT_NATURAL_GAS_RATE_USD_PER_THERM
   ): number {
-    return (monthlyBill * this.MONTHS_PER_YEAR) / ratePerTherm
+    return (monthlyBill * EnergyRates.MONTHS_PER_YEAR) / ratePerTherm;
   }
 }

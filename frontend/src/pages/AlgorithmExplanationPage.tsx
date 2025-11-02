@@ -1,5 +1,15 @@
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
-import { Home, Car, Utensils, ShoppingBag, Zap, Calculator, DollarSign, MapPin, Recycle } from 'lucide-react'
+import {
+  Calculator,
+  Car,
+  DollarSign,
+  Home,
+  MapPin,
+  Recycle,
+  ShoppingBag,
+  Utensils,
+  Zap,
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 
 const AlgorithmExplanationPage = () => {
   return (
@@ -10,9 +20,10 @@ const AlgorithmExplanationPage = () => {
 
       <div className="bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg rounded-xl p-8 mb-8 text-white text-balance md:text-pretty">
         <p className="mb-6 text-lg">
-          EcoViz uses a comprehensive, multi-stage calculation process to determine your carbon footprint. Our algorithm
-          transforms your real-world inputs (bills, commute habits, lifestyle choices) into precise emissions
-          calculations across four key categories. Here's exactly how our system works:
+          EcoViz uses a comprehensive, multi-stage calculation process to determine your carbon
+          footprint. Our algorithm transforms your real-world inputs (bills, commute habits,
+          lifestyle choices) into precise emissions calculations across four key categories. Here's
+          exactly how our system works:
         </p>
 
         {/* Input Processing Section */}
@@ -25,7 +36,9 @@ const AlgorithmExplanationPage = () => {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <h4 className="font-semibold text-indigo-200 mb-2">Bill-to-Consumption Conversion</h4>
+                <h4 className="font-semibold text-indigo-200 mb-2">
+                  Bill-to-Consumption Conversion
+                </h4>
                 <ul className="text-sm text-indigo-100 space-y-1">
                   <li>• Electricity: Monthly bill ÷ $0.16/kWh = Annual kWh</li>
                   <li>• Natural Gas: Monthly bill ÷ $1.20/therm = Annual therms</li>
@@ -285,16 +298,16 @@ const AlgorithmExplanationPage = () => {
         <div className="text-center text-sm text-green-100 mt-8 bg-gray-300 bg-opacity-40 p-6 rounded-lg">
           <h4 className="font-semibold mb-2">Methodology & Data Sources</h4>
           <p>
-            Our emission factors are sourced from EPA guidelines, EIA energy data, and IPCC climate research. Utility
-            rate defaults ($0.16/kWh electricity, $1.20/therm gas) are based on US Energy Information Administration
-            averages. The algorithm is continuously updated to reflect the latest climate science and energy market
-            data. For location-specific calculations and enhanced accuracy, consult with certified environmental
-            analysts.
+            Our emission factors are sourced from EPA guidelines, EIA energy data, and IPCC climate
+            research. Utility rate defaults ($0.16/kWh electricity, $1.20/therm gas) are based on US
+            Energy Information Administration averages. The algorithm is continuously updated to
+            reflect the latest climate science and energy market data. For location-specific
+            calculations and enhanced accuracy, consult with certified environmental analysts.
           </p>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default AlgorithmExplanationPage
+export default AlgorithmExplanationPage;
