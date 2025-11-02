@@ -1,7 +1,3 @@
-- [x] fix frontend UI
-- [x] Improve calculate form so you cannot advance without filling required fields
-- [x] Improve testing performance precommit hook
-- [x] remove all old test with jest
 - [] Migrate from vercel to s3
 - [] Add backend unit tests with vitest
 - [] Add vitest to frontend
@@ -9,4 +5,3 @@
 - [] update readme docs
 - [] Update github readme personal
 - [] break down calculator into smaller components
-- [x] Set up terminal oh my zsh
