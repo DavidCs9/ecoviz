@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import React, { useEffect, useState } from 'react'
 import { useSpring, animated } from 'react-spring'
 import { PieChart, Pie, Cell, ResponsiveContainer, Sector, BarChart, XAxis, YAxis, Tooltip, Bar } from 'recharts'
