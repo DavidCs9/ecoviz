@@ -5,13 +5,11 @@ on:
     branches: [main, dev]
     paths:
       - "frontend/**"
-      - "shared/**"
       - ".github/workflows/frontend-deploy.yml"
   pull_request:
     branches: [main, dev]
     paths:
       - "frontend/**"
-      - "shared/**"
 
 env:
   AWS_REGION: us-west-1
