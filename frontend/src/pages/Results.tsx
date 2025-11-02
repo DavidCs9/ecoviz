@@ -145,23 +145,23 @@ const Results: React.FC = () => {
   ]
 
   return (
-    <div className="min-h-screen w-full p-6">
-      <div className="md:max-w-4xl mx-auto bg-gradient-to-br from-green-100 to-blue-100 p-6 md:p-10 rounded-lg shadow-lg overflow-hidden text-gray-600">
-        <h1 className="text-3xl md:text-4xl font-bold text-center mb-8 text-green-800">
+    <div className="w-full max-w-4xl mx-auto p-3 md:p-6">
+      <div className="bg-gradient-to-br from-green-100 to-blue-100 p-4 md:p-10 rounded-lg shadow-lg text-gray-600">
+        <h1 className="text-2xl md:text-4xl font-bold text-center mb-4 md:mb-8 text-green-800">
           Your Carbon Footprint Results
         </h1>
 
-        <div className="flex flex-col md:flex-row justify-center items-center mb-8">
-          <Leaf className="w-16 h-16 text-green-500 mr-4" />
-          <animated.span className="text-4xl md:text-6xl font-bold text-green-700">
+        <div className="flex flex-col md:flex-row justify-center items-center mb-4 md:mb-8">
+          <Leaf className="w-12 h-12 md:w-16 md:h-16 text-green-500 mb-2 md:mb-0 md:mr-4" />
+          <animated.span className="text-3xl md:text-6xl font-bold text-green-700">
             {animatedNumber.number.to(n => n.toFixed(2))}
           </animated.span>
-          <span className="text-2xl ml-2">kg CO2e / year</span>
+          <span className="text-xl md:text-2xl ml-0 md:ml-2 mt-1 md:mt-0">kg CO2e / year</span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mb-4 md:mb-8">
           <div className="hidden md:block">
-            <h2 className="text-2xl font-semibold mb-4 text-green-700">Breakdown</h2>
+            <h2 className="text-xl md:text-2xl font-semibold mb-3 md:mb-4 text-green-700">Breakdown</h2>
             <ResponsiveContainer height={300}>
               <PieChart>
                 <Pie
@@ -184,12 +184,12 @@ const Results: React.FC = () => {
             </ResponsiveContainer>
           </div>
           <div>
-            <h2 className="text-2xl font-semibold mb-4 text-green-700">Details</h2>
-            <ul className="space-y-4">
+            <h2 className="text-xl md:text-2xl font-semibold mb-3 md:mb-4 text-green-700">Details</h2>
+            <ul className="space-y-2 md:space-y-4">
               {data.map((item, index) => (
                 <li key={index} className="flex items-center">
-                  <item.icon className="w-8 h-8 mr-4" style={{ color: item.color }} />
-                  <span className="text-lg">
+                  <item.icon className="w-6 h-6 md:w-8 md:h-8 mr-2 md:mr-4" style={{ color: item.color }} />
+                  <span className="text-sm md:text-lg">
                     {item.name}: {item.value.toFixed(1)} kg CO2e
                   </span>
                 </li>
@@ -198,18 +198,18 @@ const Results: React.FC = () => {
           </div>
         </div>
 
-        <div className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4 text-green-700">Comparison with Averages</h2>
-          <ResponsiveContainer width="100%" height={300}>
+        <div className="mb-4 md:mb-8">
+          <h2 className="text-xl md:text-2xl font-semibold mb-3 md:mb-4 text-green-700">Comparison with Averages</h2>
+          <ResponsiveContainer width="100%" height={250}>
             <BarChart data={comparisonData}>
-              <XAxis dataKey="name" />
-              <YAxis />
+              <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+              <YAxis tick={{ fontSize: 12 }} />
               <Tooltip />
               <Bar dataKey="value" />
             </BarChart>
           </ResponsiveContainer>
-          <div className="mt-4 text-center">
-            <p className="text-lg">
+          <div className="mt-3 md:mt-4 text-center">
+            <p className="text-sm md:text-lg">
               Your carbon footprint is{' '}
               <strong className="text-green-700">{((carbonFootprint / averages.global - 1) * 100).toFixed(1)}%</strong>{' '}
               {carbonFootprint > averages.global ? 'higher' : 'lower'} than the global average and{' '}
@@ -220,20 +220,22 @@ const Results: React.FC = () => {
         </div>
 
         {/* AI Analysis Summary */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4 text-green-700">AI Analysis Summary</h2>
-          <div className="bg-green-50 p-6 rounded-lg border border-green-200">
-            <div className="grid md:grid-cols-2 gap-6 mb-6">
+        <div className="mb-4 md:mb-8">
+          <h2 className="text-xl md:text-2xl font-semibold mb-3 md:mb-4 text-green-700">AI Analysis Summary</h2>
+          <div className="bg-green-50 p-4 md:p-6 rounded-lg border border-green-200">
+            <div className="grid md:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
               <div>
-                <h3 className="text-lg font-semibold mb-3 text-green-800">Comparison to Averages</h3>
-                <div className="space-y-2">
-                  <p className="text-green-900">
+                <h3 className="text-base md:text-lg font-semibold mb-2 md:mb-3 text-green-800">
+                  Comparison to Averages
+                </h3>
+                <div className="space-y-1 md:space-y-2">
+                  <p className="text-sm md:text-base text-green-900">
                     <span className="font-medium">Global Average:</span>{' '}
                     <span className="font-bold text-green-700">
                       {(aiAnalysis.summary.comparisonToAverages.global * 100).toFixed(1)}%
                     </span>
                   </p>
-                  <p className="text-green-900">
+                  <p className="text-sm md:text-base text-green-900">
                     <span className="font-medium">US Average:</span>{' '}
                     <span className="font-bold text-green-700">
                       {(aiAnalysis.summary.comparisonToAverages.us * 100).toFixed(1)}%
@@ -243,10 +245,10 @@ const Results: React.FC = () => {
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold mb-3 text-green-800">Top Contributors</h3>
-                <div className="space-y-2">
+                <h3 className="text-base md:text-lg font-semibold mb-2 md:mb-3 text-green-800">Top Contributors</h3>
+                <div className="space-y-1 md:space-y-2">
                   {aiAnalysis.summary.topContributors.slice(0, 3).map(contributor => (
-                    <div key={contributor.category} className="flex justify-between">
+                    <div key={contributor.category} className="flex justify-between text-sm md:text-base">
                       <span className="text-green-900 capitalize">{contributor.category}:</span>
                       <span className="font-medium text-green-700">{contributor.percentage.toFixed(1)}%</span>
                     </div>
@@ -258,13 +260,13 @@ const Results: React.FC = () => {
         </div>
 
         {/* AI Recommendations */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4 text-green-700">AI Recommendations</h2>
-          <div className="space-y-6">
+        <div className="mb-4 md:mb-8">
+          <h2 className="text-xl md:text-2xl font-semibold mb-3 md:mb-4 text-green-700">AI Recommendations</h2>
+          <div className="space-y-4 md:space-y-6">
             {aiAnalysis.recommendations.map((recommendation, index) => (
               <div
                 key={index}
-                className={`p-6 rounded-lg border-l-4 ${
+                className={`p-4 md:p-6 rounded-lg border-l-4 ${
                   recommendation.priority === 'high'
                     ? 'border-red-500 bg-red-50'
                     : recommendation.priority === 'medium'
@@ -272,10 +274,10 @@ const Results: React.FC = () => {
                       : 'border-green-500 bg-green-50'
                 }`}
               >
-                <div className="flex items-start justify-between mb-3">
-                  <h3 className="text-xl font-semibold text-gray-800">{recommendation.title}</h3>
+                <div className="flex flex-col md:flex-row items-start justify-between mb-3 gap-2">
+                  <h3 className="text-lg md:text-xl font-semibold text-gray-800">{recommendation.title}</h3>
                   <span
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    className={`px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium whitespace-nowrap ${
                       recommendation.priority === 'high'
                         ? 'bg-red-100 text-red-800'
                         : recommendation.priority === 'medium'
@@ -287,26 +289,26 @@ const Results: React.FC = () => {
                   </span>
                 </div>
 
-                <p className="text-gray-700 mb-4">{recommendation.description}</p>
+                <p className="text-sm md:text-base text-gray-700 mb-3 md:mb-4">{recommendation.description}</p>
 
-                <div className="grid md:grid-cols-2 gap-4 mb-4">
-                  <div className="bg-white p-4 rounded-lg">
-                    <h4 className="font-semibold text-gray-800 mb-2">Data Reference</h4>
-                    <p className="text-gray-600 text-sm">{recommendation.dataReference}</p>
+                <div className="grid md:grid-cols-2 gap-3 md:gap-4 mb-3 md:mb-4">
+                  <div className="bg-white p-3 md:p-4 rounded-lg">
+                    <h4 className="font-semibold text-sm md:text-base text-gray-800 mb-1 md:mb-2">Data Reference</h4>
+                    <p className="text-gray-600 text-xs md:text-sm">{recommendation.dataReference}</p>
                   </div>
 
-                  <div className="bg-white p-4 rounded-lg">
-                    <h4 className="font-semibold text-gray-800 mb-2">Goal</h4>
-                    <p className="text-gray-600 text-sm">{recommendation.goal}</p>
+                  <div className="bg-white p-3 md:p-4 rounded-lg">
+                    <h4 className="font-semibold text-sm md:text-base text-gray-800 mb-1 md:mb-2">Goal</h4>
+                    <p className="text-gray-600 text-xs md:text-sm">{recommendation.goal}</p>
                   </div>
                 </div>
 
-                <div className="bg-white p-4 rounded-lg">
-                  <h4 className="font-semibold text-gray-800 mb-2">Potential Impact</h4>
-                  <p className="text-lg font-bold text-green-600">
+                <div className="bg-white p-3 md:p-4 rounded-lg">
+                  <h4 className="font-semibold text-sm md:text-base text-gray-800 mb-1 md:mb-2">Potential Impact</h4>
+                  <p className="text-base md:text-lg font-bold text-green-600">
                     -{recommendation.potentialImpact.co2Reduction} {recommendation.potentialImpact.unit}
                   </p>
-                  <p className="text-gray-600 text-sm">
+                  <p className="text-gray-600 text-xs md:text-sm">
                     Category: <span className="capitalize">{recommendation.category}</span>
                   </p>
                 </div>
@@ -315,7 +317,7 @@ const Results: React.FC = () => {
           </div>
         </div>
 
-        <div className="text-center text-sm text-gray-600 mt-8 bg-gray-100/80 p-2 rounded-lg">
+        <div className="text-center text-xs md:text-sm text-gray-600 mt-4 md:mt-8 bg-gray-100/80 p-2 rounded-lg">
           <p>{aiAnalysis.disclaimer}</p>
         </div>
       </div>
