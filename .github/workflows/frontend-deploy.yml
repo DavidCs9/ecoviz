@@ -5,15 +5,19 @@ on:
     branches: [main, dev]
     paths:
       - "frontend/**"
+      - "!frontend/**/*.md"
       - "biome.json"
       - "package.json"
+      - "!*.md"
       - ".github/workflows/frontend-deploy.yml"
   pull_request:
     branches: [main, dev]
     paths:
       - "frontend/**"
+      - "!frontend/**/*.md"
       - "biome.json"
       - "package.json"
+      - "!*.md"
 
 env:
   AWS_REGION: us-west-1
