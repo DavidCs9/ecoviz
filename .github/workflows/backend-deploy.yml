@@ -4,14 +4,12 @@ on:
   push:
     branches: [main, dev]
     paths:
-      - 'backend/**'
-      - 'shared/**'
-      - '.github/workflows/backend-deploy.yml'
+      - "backend/**"
+      - ".github/workflows/backend-deploy.yml"
   pull_request:
     branches: [main, dev]
     paths:
-      - 'backend/**'
-      - 'shared/**'
+      - "backend/**"
 
 env:
   AWS_REGION: us-west-1
@@ -28,16 +26,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: |
-            backend/package-lock.json
-            shared/package-lock.json
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: backend/package-lock.json
 
       - name: Setup Python for SAM CLI
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: "3.9"
 
       - name: Install SAM CLI
         run: |
@@ -53,9 +49,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm ci --ignore-scripts
-          cd shared && npm ci --ignore-scripts
-          cd ../backend && npm ci --ignore-scripts
+          cd backend && npm ci --ignore-scripts
 
       - name: Build backend
         run: |
@@ -101,16 +95,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: |
-            backend/package-lock.json
-            shared/package-lock.json
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: backend/package-lock.json
 
       - name: Setup Python for SAM CLI
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: "3.9"
 
       - name: Install SAM CLI
         run: |
@@ -126,9 +118,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm ci --ignore-scripts
-          cd shared && npm ci --ignore-scripts
-          cd ../backend && npm ci --ignore-scripts
+          cd backend && npm ci --ignore-scripts
 
       - name: Build backend
         run: |

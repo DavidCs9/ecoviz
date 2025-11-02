@@ -34,10 +34,6 @@ backend/dist/
 backend/build/
 backend/coverage/
 
-# Shared package builds
-shared/dist/
-shared/build/
-
 # AWS SAM
 .aws-sam/
 samconfig.toml.backup
